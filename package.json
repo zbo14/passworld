@@ -1,0 +1,13 @@
+{
+  "name": "passwerk",
+  "version": "0.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zachary Balder",
+  "dependencies": {
+    "electron": "2.0.8"
+  }
+}

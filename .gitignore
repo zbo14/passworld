@@ -1,3 +1,8 @@
+cov
+coverage
 .DS_Store
 *.log
 node_modules
+.nyc_output
+out
+passwerds

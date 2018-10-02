@@ -12,17 +12,6 @@ const service = 'facebook'
 describe('passwerk', () => {
   before(done => exec('rm -rf passwerds && mkdir passwerds', done))
 
-  describe('#get()', () => {
-    it('fails to get password that doesn\'t exist yet', async () => {
-      try {
-        await passwerk.get(service, password)
-        assert.ok(false, 'should have thrown error')
-      } catch (err) {
-        assert.strictEqual(err.message, 'No password for service: facebook')
-      }
-    })
-  })
-
   describe('#set()', () => {
     it('sets password for a service', async () => {
       const result = await passwerk.set(service, password)
@@ -40,6 +29,15 @@ describe('passwerk', () => {
     it('gets password for service', async () => {
       const result = await passwerk.get(service, password)
       assert.strictEqual(result, passwerd)
+    })
+
+    it('fails to get password that doesn\'t exist', async () => {
+      try {
+        await passwerk.get('twitter', password)
+        assert.ok(false, 'should have thrown error')
+      } catch (err) {
+        assert.strictEqual(err.message, 'No password for service: twitter')
+      }
     })
   })
 })

@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "doc": "jsdoc README.md lib && open out/index.html",
+    "start": "NODE_ENV=development nodemon --exec \"electron .\"",
     "test": "NODE_ENV=test nyc mocha --exit"
   },
   "author": "Zachary Balder",
@@ -11,7 +12,9 @@
     "electron": "2.0.8"
   },
   "devDependencies": {
+    "jsdoc": "3.5.5",
     "mocha": "5.2.0",
+    "nodemon": "1.18.4",
     "nyc": "13.0.1"
   }
 }

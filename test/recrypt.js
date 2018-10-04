@@ -7,17 +7,17 @@ const recrypt = require('../lib/recrypt')
 const util = require('../lib/util')
 
 const plaintext = 'foobar'
-const password = 'baz'
+const passphrase = 'baz bam'
 
 describe('recrypt', () => {
   describe('#encrypt()', () => {
-    it('encrypts a plaintext string with a password', async () => {
-      const description = await recrypt.encrypt(plaintext, password)
+    it('encrypts a plaintext string with a passphrase', async () => {
+      const description = await recrypt.encrypt(plaintext, passphrase)
       assert.strictEqual(typeof description, 'string')
     })
 
-    it('encrypts a plaintext buffer with a password', async () => {
-      const description = await recrypt.encrypt(Buffer.from(plaintext), password)
+    it('encrypts a plaintext buffer with a passphrase', async () => {
+      const description = await recrypt.encrypt(Buffer.from(plaintext), passphrase)
       assert.strictEqual(typeof description, 'string')
     })
   })
@@ -27,17 +27,17 @@ describe('recrypt', () => {
     let descObj
 
     before(async () => {
-      description = await recrypt.encrypt(plaintext, password)
+      description = await recrypt.encrypt(plaintext, passphrase)
       descObj = util.deserialize(description)
     })
 
-    it('decrypts the plaintext with a password string', async () => {
-      const result = await recrypt.decrypt(description, password)
+    it('decrypts the plaintext with a passphrase string', async () => {
+      const result = await recrypt.decrypt(description, passphrase)
       assert.strictEqual(result.toString(), plaintext)
     })
 
-    it('decrypts the plaintext with a password buffer and encodes it', async () => {
-      const result = await recrypt.decrypt(description, password, 'utf8')
+    it('decrypts the plaintext with a passphrase buffer and encodes it', async () => {
+      const result = await recrypt.decrypt(description, passphrase, 'utf8')
       assert.strictEqual(result, plaintext)
     })
 
@@ -45,18 +45,18 @@ describe('recrypt', () => {
       const newDescription = Buffer.from(description, 'base64').toString('hex')
 
       try {
-        await recrypt.decrypt(newDescription, password)
+        await recrypt.decrypt(newDescription, passphrase)
         assert.ok(false, 'should have thrown error')
       } catch (err) {
         assert.strictEqual(err.message, 'Invalid description')
       }
     })
 
-    it('fails to decrypt with wrong password', async () => {
-      const password = Buffer.from('bar')
+    it('fails to decrypt with wrong passphrase', async () => {
+      const passphrase = Buffer.from('bar')
 
       try {
-        await recrypt.decrypt(description, password)
+        await recrypt.decrypt(description, passphrase)
         assert.ok(false, 'should have thrown error')
       } catch (err) {
         assert.strictEqual(err.message, 'Decryption failed')
@@ -69,7 +69,7 @@ describe('recrypt', () => {
       const newDescription = util.serialize(newDescObj)
 
       try {
-        await recrypt.decrypt(newDescription, password)
+        await recrypt.decrypt(newDescription, passphrase)
         assert.ok(false, 'should have thrown error')
       } catch (err) {
         assert.strictEqual(err.message, 'Decryption failed')
@@ -82,7 +82,7 @@ describe('recrypt', () => {
       const newDescription = util.serialize(newDescObj)
 
       try {
-        await recrypt.decrypt(newDescription, password)
+        await recrypt.decrypt(newDescription, passphrase)
         assert.ok(false, 'should have thrown error')
       } catch (err) {
         assert.strictEqual(err.message, 'Decryption failed')
@@ -95,7 +95,7 @@ describe('recrypt', () => {
       const newDescription = util.serialize(newDescObj)
 
       try {
-        await recrypt.decrypt(newDescription, password)
+        await recrypt.decrypt(newDescription, passphrase)
         assert.ok(false, 'should have thrown error')
       } catch (err) {
         assert.strictEqual(err.message, 'Decryption failed')

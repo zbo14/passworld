@@ -9,6 +9,8 @@ const result = require('../elements/result')
 const service = require('../elements/service')
 
 module.exports = passwerk => {
+  clearTimeout(result.timeout)
+
   navButton.onclick = () => {
     passwerk.mode = 'get'
     app.render()
@@ -22,12 +24,17 @@ module.exports = passwerk => {
   navButton.innerText = 'Get a password'
 
   action.onclick = async () => {
-    await passwerk.set(service.value, passphrase.value)
-    result.innerText = 'Set password!'
-    result.hidden = false
+    try {
+      await passwerk.set(service.value, passphrase.value)
+      result.innerText = 'Set password!'
+    } catch (err) {
+      result.innerText = err.message
+    } finally {
+      result.hidden = false
 
-    setTimeout(() => {
-      result.hidden = true
-    }, 3000)
+      result.timeout = setTimeout(() => {
+        result.hidden = true
+      }, 5e3)
+    }
   }
 }

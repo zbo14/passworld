@@ -6,6 +6,12 @@ let win
 
 const createWindow = () => {
   win = new BrowserWindow({ width: 800, height: 600 })
+
+  /* eslint-disable-next-line */
+  win.eval = global.eval = () => {
+    throw new Error('Sorry, this app doesn\'t support window.eval()')
+  }
+
   win.loadFile('index.html')
 
   if (process.env.NODE_ENV === 'development') {

@@ -13,7 +13,7 @@ const service = 'facebook'
 describe('passwerk', () => {
   describe('#set()', () => {
     before(async () => {
-      await exec('rm -rf passwerds && mkdir passwerds')
+      await exec('rm -rf passwords && mkdir passwords')
     })
 
     it('sets password for a service', async () => {
@@ -52,7 +52,7 @@ describe('passwerk', () => {
     let password
 
     before(async () => {
-      await exec('rm -rf passwerds && mkdir passwerds')
+      await exec('rm -rf passwords && mkdir passwords')
       password = await passwerk.set(service, passphrase)
     })
 

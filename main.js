@@ -14,7 +14,7 @@ const createWindow = () => {
 
   win.loadFile('index.html')
 
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'dev') {
     win.webContents.openDevTools()
   }
 

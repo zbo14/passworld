@@ -1,7 +1,5 @@
 'use strict'
 
-/* eslint-env mocha */
-
 const assert = require('assert')
 const crypto = require('../lib/crypto')
 const fixtures = require('./fixtures/crypto')

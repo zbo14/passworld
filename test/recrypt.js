@@ -1,7 +1,5 @@
 'use strict'
 
-/* eslint-env mocha */
-
 const assert = require('assert')
 const recrypt = require('../lib/recrypt')
 const util = require('../lib/util')

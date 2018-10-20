@@ -4,7 +4,7 @@
   "main": "main.js",
   "scripts": {
     "doc": "jsdoc README.md lib && open out/index.html",
-    "start": "mkdir -p passwords && NODE_ENV=development nodemon --exec \"electron .\"",
+    "start": "mkdir -p passwords && NODE_ENV=dev nodemon --exec \"electron .\"",
     "test": "NODE_ENV=test nyc mocha --exit"
   },
   "author": "Zachary Balder",
@@ -13,6 +13,12 @@
     "electron": "2.0.8"
   },
   "devDependencies": {
+    "eslint": "5.7.0",
+    "eslint-config-standard": "12.0.0",
+    "eslint-plugin-import": "2.14.0",
+    "eslint-plugin-node": "7.0.1",
+    "eslint-plugin-promise": "4.0.1",
+    "eslint-plugin-standard": "4.0.0",
     "jsdoc": "3.5.5",
     "mocha": "5.2.0",
     "nodemon": "1.18.4",

@@ -1,8 +1,7 @@
 'use strict'
 
-const { clipboard } = require('electron')
-const passwerk = require('../../../lib/passwerk')
 const app = require('../app')
+const passwerk = require('../../../lib/passwerk')
 const actionButton = require('../elements/action-button')
 const heading = require('../elements/heading')
 const navCreateView = require('../elements/nav-create-view')
@@ -19,27 +18,28 @@ module.exports = () => {
 
   serviceInput.value = ''
   passphraseInput.value = ''
-  newPassphraseInput.hidden = true
-  lengthInput.hidden = true
+  newPassphraseInput.value = ''
+  lengthInput.value = ''
 
-  actionButton.innerText = 'Get'
-  heading.innerText = 'Get a password'
+  actionButton.innerText = 'Change'
+  heading.innerText = 'Change a password'
 
+  newPassphraseInput.hidden = false
+  lengthInput.hidden = false
   resultPanel.hidden = true
 
   actionButton.onclick = async () => {
     clearTimeout(resultPanel.timeout)
 
     try {
-      const password = await passwerk.get({
+      await passwerk.update({
         service: serviceInput.value,
-        passphrase: passphraseInput.value
+        passphrase: passphraseInput.value,
+        length: parseInt(lengthInput.value),
+        newPassphrase: newPassphraseInput.value
       })
 
-      clipboard.writeText(password)
-      resultPanel.innerText = 'Copied password!'
-
-      setTimeout(() => clipboard.clear(), 30e3)
+      resultPanel.innerText = 'Changed a password!'
     } catch (err) {
       resultPanel.innerText = err.message
     } finally {

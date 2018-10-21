@@ -1,6 +1,8 @@
 'use strict'
 
 const element = document.createElement('input')
-element.placeholder = 'Service'
+
+element.placeholder = 'Password length'
+element.type = 'number'
 
 module.exports = element

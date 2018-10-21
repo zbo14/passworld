@@ -1,6 +1,7 @@
 'use strict'
 
 module.exports = {
-  get: require('./get'),
-  set: require('./set')
+  change: require('./change'),
+  create: require('./create'),
+  get: require('./get')
 }

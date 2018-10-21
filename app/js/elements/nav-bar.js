@@ -1,10 +1,11 @@
 'use strict'
 
-const navButton = require('./nav-button')
-
 const element = document.createElement('div')
 
 element.classList.add('container', 'row')
-element.appendChild(navButton)
+
+element.appendChild(require('./nav-create-view'))
+element.appendChild(require('./nav-get-view'))
+element.appendChild(require('./nav-change-view'))
 
 module.exports = element

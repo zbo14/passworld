@@ -1,13 +1,12 @@
 'use strict'
 
-const { clipboard } = require('electron')
-const passwerk = require('../../../lib/passwerk')
 const app = require('../app')
+const passwerk = require('../../../lib/passwerk')
 const actionButton = require('../elements/action-button')
-const heading = require('../elements/heading')
 const navCreateView = require('../elements/nav-create-view')
 const navChangeView = require('../elements/nav-change-view')
 const navGetView = require('../elements/nav-get-view')
+const heading = require('../elements/heading')
 const passphraseInput = require('../elements/passphrase-input')
 const newPassphraseInput = require('../elements/new-passphrase-input')
 const lengthInput = require('../elements/length-input')
@@ -19,27 +18,26 @@ module.exports = () => {
 
   serviceInput.value = ''
   passphraseInput.value = ''
+  lengthInput.value = ''
+
+  actionButton.innerText = 'Create'
+  heading.innerText = 'Create a password'
+
   newPassphraseInput.hidden = true
-  lengthInput.hidden = true
-
-  actionButton.innerText = 'Get'
-  heading.innerText = 'Get a password'
-
+  lengthInput.hidden = false
   resultPanel.hidden = true
 
   actionButton.onclick = async () => {
     clearTimeout(resultPanel.timeout)
 
     try {
-      const password = await passwerk.get({
+      await passwerk.create({
         service: serviceInput.value,
-        passphrase: passphraseInput.value
+        passphrase: passphraseInput.value,
+        length: parseInt(lengthInput.value)
       })
 
-      clipboard.writeText(password)
-      resultPanel.innerText = 'Copied password!'
-
-      setTimeout(() => clipboard.clear(), 30e3)
+      resultPanel.innerText = 'Created a new password!'
     } catch (err) {
       resultPanel.innerText = err.message
     } finally {

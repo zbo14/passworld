@@ -1,9 +1,7 @@
 'use strict'
 
-const controlPanel = require('./control-panel')
-const navBar = require('./nav-bar')
-
 const root = document.getElementById('root')
 
-root.appendChild(navBar)
-root.appendChild(controlPanel)
+root.appendChild(require('./nav-bar'))
+root.appendChild(require('./control-panel'))
+root.appendChild(require('./result-panel'))

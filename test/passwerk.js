@@ -10,7 +10,7 @@ const service = 'facebook'
 const length = 20
 
 describe('passwerk', () => {
-  describe('#set()', () => {
+  describe('#create()', () => {
     before(async () => {
       await exec('mkdir -p passwords')
     })
@@ -19,26 +19,49 @@ describe('passwerk', () => {
       await exec('rm -rf passwords')
     })
 
-    it('sets password for a service', async () => {
-      const result = await passwerk.set({ service, passphrase, length })
+    it('create password for a service', async () => {
+      const result = await passwerk.create({ service, passphrase, length })
       assert.strictEqual(typeof result, 'string')
       assert.strictEqual(result.length, length)
     })
 
-    it('sets password with different length for another service', async () => {
-      const result = await passwerk.set({
+    it('creates password with different length for another service', async () => {
+      const result = await passwerk.create({
         service: 'gmail',
         passphrase,
-        length: 32
+        length: 30
       })
 
       assert.strictEqual(typeof result, 'string')
-      assert.strictEqual(result.length, 32)
+      assert.strictEqual(result.length, 30)
+    })
+
+    it('fails to create password for service that already exists', async () => {
+      try {
+        await passwerk.create({ service, passphrase, length })
+        assert.ok(false, 'should have thrown error')
+      } catch (err) {
+        assert.strictEqual(
+          err.message,
+          `Password already exists for service: ${service}`
+        )
+      }
+    })
+  })
+
+  describe('#update()', () => {
+    before(async () => {
+      await exec('mkdir -p passwords')
+      await passwerk.create({ service, passphrase, length })
+    })
+
+    after(async () => {
+      await exec('rm -rf passwords')
     })
 
     it('fails to reset the password', async () => {
       try {
-        await passwerk.set({
+        await passwerk.update({
           service,
           passphrase: 'ooglyboogly',
           length
@@ -53,15 +76,32 @@ describe('passwerk', () => {
       }
     })
 
+    it('fails to reset a password that doesn\'t exist', async () => {
+      try {
+        await passwerk.update({
+          service: 'aol',
+          passphrase: 'ooglyboogly',
+          length
+        })
+
+        assert.ok(false, 'should have thrown error')
+      } catch (err) {
+        assert.strictEqual(
+          err.message,
+          'No password for service: aol'
+        )
+      }
+    })
+
     it('resets the password with the same passphrase', async () => {
-      let result = await passwerk.set({ service, passphrase, length })
+      let result = await passwerk.update({ service, passphrase, length })
       assert.strictEqual(typeof result, 'string')
       result = await passwerk.get({ service, passphrase, length })
       assert.strictEqual(typeof result, 'string')
     }).timeout(5e3)
 
     it('resets the password with a different passphrase', async () => {
-      let result = await passwerk.set({
+      let result = await passwerk.update({
         service,
         passphrase,
         newPassphrase: 'foo bar baz',
@@ -79,7 +119,7 @@ describe('passwerk', () => {
 
     before(async () => {
       await exec('mkdir -p passwords')
-      password = await passwerk.set({ service, passphrase, length })
+      password = await passwerk.create({ service, passphrase, length })
     })
 
     after(async () => {

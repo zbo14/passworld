@@ -4,9 +4,9 @@ const assert = require('assert')
 const util = require('../lib/util')
 
 describe('util', () => {
-  describe('#validateSetOptions()', () => {
+  describe('#validateCreateOptions()', () => {
     it('validates options', () => {
-      util.validateSetOptions({
+      util.validateCreateOptions({
         service: 'gmail',
         passphrase: 'foo bar baz',
         length: 20
@@ -17,7 +17,7 @@ describe('util', () => {
 
     it('throws when options isn\'t an object', () => {
       try {
-        util.validateSetOptions([])
+        util.validateCreateOptions([])
         assert.ok(false, 'should have thrown error')
       } catch (err) {
         assert.strictEqual(
@@ -30,7 +30,7 @@ describe('util', () => {
 
     it('throws when options has invalid service', () => {
       try {
-        util.validateSetOptions({
+        util.validateCreateOptions({
           service: '',
           passphrase: 'fu bah bash',
           length: 10
@@ -47,7 +47,7 @@ describe('util', () => {
 
     it('throws when options has invalid passphrase', () => {
       try {
-        util.validateSetOptions({
+        util.validateCreateOptions({
           service: 'gmail',
           passphrase: '',
           length: 14
@@ -64,7 +64,83 @@ describe('util', () => {
 
     it('throws when options has invalid length', () => {
       try {
-        util.validateSetOptions({
+        util.validateCreateOptions({
+          service: 'gmail',
+          passphrase: 'foo bar baz',
+          length: 7
+        })
+
+        assert.ok(false, 'should have thrown error')
+      } catch (err) {
+        assert.strictEqual(
+          err.message,
+          'Expected options.length to be an integer >= 8'
+        )
+      }
+    })
+  })
+
+  describe('#validateUpdateOptions()', () => {
+    it('validates options', () => {
+      util.validateUpdateOptions({
+        service: 'gmail',
+        passphrase: 'foo bar baz',
+        length: 20
+      })
+
+      assert.ok(true)
+    })
+
+    it('throws when options isn\'t an object', () => {
+      try {
+        util.validateUpdateOptions([])
+        assert.ok(false, 'should have thrown error')
+      } catch (err) {
+        assert.strictEqual(
+          err.message,
+          'Expected options to be an object'
+        )
+      }
+    })
+
+
+    it('throws when options has invalid service', () => {
+      try {
+        util.validateUpdateOptions({
+          service: '',
+          passphrase: 'fu bah bash',
+          length: 10
+        })
+
+        assert.ok(false, 'should have thrown error')
+      } catch (err) {
+        assert.strictEqual(
+          err.message,
+          'Expected options.service to be a non-empty string'
+        )
+      }
+    })
+
+    it('throws when options has invalid passphrase', () => {
+      try {
+        util.validateUpdateOptions({
+          service: 'gmail',
+          passphrase: '',
+          length: 14
+        })
+
+        assert.ok(false, 'should have thrown error')
+      } catch (err) {
+        assert.strictEqual(
+          err.message,
+          'Expected options.passphrase to be a non-empty string'
+        )
+      }
+    })
+
+    it('throws when options has invalid length', () => {
+      try {
+        util.validateUpdateOptions({
           service: 'gmail',
           passphrase: 'foo bar baz',
           length: 7
@@ -81,10 +157,10 @@ describe('util', () => {
 
     it('throws when options has invalid newPassphrase', () => {
       try {
-        util.validateSetOptions({
+        util.validateUpdateOptions({
           service: 'gmail',
           passphrase: 'foo bar baz',
-          length: 12,
+          length: 32,
           newPassphrase: ''
         })
 

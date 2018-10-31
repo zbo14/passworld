@@ -1,11 +1,7 @@
 'use strict'
 
-const app = require('../app')
 const passwerk = require('../../../lib/passwerk')
 const actionButton = require('../elements/action-button')
-const navCreateView = require('../elements/nav-create-view')
-const navChangeView = require('../elements/nav-change-view')
-const navGetView = require('../elements/nav-get-view')
 const heading = require('../elements/heading')
 const passphraseInput = require('../elements/passphrase-input')
 const newPassphraseInput = require('../elements/new-passphrase-input')

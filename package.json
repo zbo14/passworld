@@ -4,7 +4,7 @@
   "main": "main.js",
   "scripts": {
     "doc": "jsdoc README.md lib && open out/index.html",
-    "start": "mkdir -p passwords && NODE_ENV=dev nodemon --exec \"electron .\"",
+    "start": "mkdir -p passwords && nodemon --exec \"electron .\"",
     "test": "NODE_ENV=test nyc mocha --exit"
   },
   "author": "Zachary Balder",

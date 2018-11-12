@@ -27,7 +27,6 @@ describe('util', () => {
       }
     })
 
-
     it('throws when options has invalid service', () => {
       try {
         util.validateCreateOptions({
@@ -103,7 +102,6 @@ describe('util', () => {
       }
     })
 
-
     it('throws when options has invalid service', () => {
       try {
         util.validateUpdateOptions({
@@ -178,7 +176,7 @@ describe('util', () => {
     it('validates options', () => {
       util.validateGetOptions({
         service: 'gmail',
-        passphrase: 'foo bar baz',
+        passphrase: 'foo bar baz'
       })
 
       assert.ok(true)
@@ -195,7 +193,6 @@ describe('util', () => {
         )
       }
     })
-
 
     it('throws when options has invalid service', () => {
       try {

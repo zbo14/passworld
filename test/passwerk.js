@@ -12,11 +12,11 @@ const length = 20
 describe('passwerk', () => {
   describe('#create()', () => {
     before(async () => {
-      await exec('mkdir -p passwords')
+      await exec('mkdir -p passwerds')
     })
 
     after(async () => {
-      await exec('rm -rf passwords')
+      await exec('rm -rf passwerds')
     })
 
     it('create password for a service', async () => {
@@ -51,12 +51,12 @@ describe('passwerk', () => {
 
   describe('#update()', () => {
     before(async () => {
-      await exec('mkdir -p passwords')
+      await exec('mkdir -p passwerds')
       await passwerk.create({ service, passphrase, length })
     })
 
     after(async () => {
-      await exec('rm -rf passwords')
+      await exec('rm -rf passwerds')
     })
 
     it('fails to reset the password', async () => {
@@ -118,12 +118,12 @@ describe('passwerk', () => {
     let password
 
     before(async () => {
-      await exec('mkdir -p passwords')
+      await exec('mkdir -p passwerds')
       password = await passwerk.create({ service, passphrase, length })
     })
 
     after(async () => {
-      await exec('rm -rf passwords')
+      await exec('rm -rf passwerds')
     })
 
     it('gets password for service', async () => {

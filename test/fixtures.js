@@ -27,3 +27,5 @@ exports.hkdf = {
     okm: '8da4e775a563c18f715f802a063c5a31b8a11f5c5ee1879ec3454e5f3c738d2d9d201395faa4b61a96c8'
   }
 }
+
+exports.shouldThrow = 'Should throw error'

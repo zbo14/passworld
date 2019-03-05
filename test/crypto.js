@@ -1,13 +1,11 @@
 'use strict'
 
 const assert = require('assert')
+const testcases = require('./fixtures').hkdf
 const crypto = require('../lib/crypto')
-const fixtures = require('./fixtures/crypto')
 
 describe('crypto', () => {
   describe('#hkdf()', () => {
-    const testcases = fixtures.hkdf
-
     for (const testcase in testcases) {
       it(`tests ${testcase}`, () => {
         const t = testcases[testcase]

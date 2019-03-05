@@ -1,6 +1,4 @@
-# passwerk
-
-Another password manager
+# passworld
 
 Generate variable-length passwords and encrypt/decrypt them with passphrases you provide.
 

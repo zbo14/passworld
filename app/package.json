@@ -1,7 +1,6 @@
 {
   "name": "passworld",
-  "version": "1.0.0",
-  "bin": "cli.js",
+  "version": "0.0.0",
   "scripts": {
     "doc": "jsdoc README.md lib && open out/index.html",
     "test": "NODE_ENV=test nyc mocha --exit"

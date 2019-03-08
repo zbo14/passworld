@@ -4,32 +4,32 @@ COMMAND=$1
 
 case $COMMAND in
 	build-server)
-    docker build --no-cache -t passworld .
-    ;;
+		docker build --no-cache -t passworld .
+		;;
 	build-start-server)
 		PASSWORD=$2
-    sh run build-server
-    sh run start-server $PASSWORD
-    ;;
+		sh run build-server
+		sh run start-server $PASSWORD
+		;;
 	clean)
-    docker system prune -f
-    ;;
+		docker system prune -f
+		;;
 	new-client-key)
 		ssh-keygen -t ed25519 -f ~/.ssh/passworld -N ''
 		;;
 	start-client)
 		HOSTNAME=$2
 		PORT=$3
-		ssh-copy-id -f -i ~/.ssh/passworld.pub -p 2200 passworld@$HOSTNAME
+		ssh-copy-id -i ~/.ssh/passworld.pub -p 2200 passworld@$HOSTNAME
 		ssh -4fN -i ~/.ssh/passworld -o StrictHostKeyChecking=no -L $PORT:localhost:11223 -p 2200 passworld@$HOSTNAME
 		port=$PORT node ./app/client
 		;;
 	start-server)
 		PASSWORD=$2
-    docker run -d -p 2200:22 --name passworld passworld
+		docker run -d -p 2200:22 --name passworld passworld
 		docker exec passworld sh init $PASSWORD
-    ;;
+		;;
 	stop-server)
-    docker rm -f passworld
-    ;;
+		docker rm -f passworld
+		;;
 esac

@@ -87,13 +87,13 @@ exports.serialize = ({ ciphertext, salt, nonce, tag, ...rest }) => {
 }
 
 exports.validateFilename = filename => {
-  if (!filename || typeof filename !== 'string') {
+  if (typeof filename !== 'string' || !filename) {
     throw new Error('Expected filename to be a non-empty string')
   }
 }
 
 exports.validatePassword = password => {
-  if (!password || typeof password !== 'string') {
+  if (typeof password !== 'string' || !password) {
     throw new Error('Expected password to be a non-empty string')
   }
 }
@@ -101,9 +101,8 @@ exports.validatePassword = password => {
 exports.validatePlaintext = plaintext => {
   const isBuffer = Buffer.isBuffer(plaintext) && plaintext.byteLength
   const isString = typeof plaintext === 'string' && plaintext
-  const valid = isBuffer || isString
 
-  if (!valid) {
+  if (!isBuffer && !isString) {
     throw new Error('Expected plaintext to be a non-empty buffer or string')
   }
 }

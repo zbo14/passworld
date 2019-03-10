@@ -7,7 +7,6 @@ ClientAliveInterval 60
 GatewayPorts no
 HostKey /root/.ssh/id_ed25519
 MaxAuthTries 3
-PasswordAuthentication yes
 PermitRootLogin no
 PermitTunnel no
 Protocol 2

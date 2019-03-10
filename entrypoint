@@ -1,5 +1,5 @@
 #!/bin/sh
 
-ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N ''
+PASSWORD_AUTH=$1
 
-/usr/sbin/sshd -4D -f /app/sshd_config
+/usr/sbin/sshd -4D -f /app/sshd_config -o "PasswordAuthentication=$PASSWORD_AUTH"

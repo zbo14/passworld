@@ -1,6 +1,7 @@
 {
   "name": "passworld",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "bin": "./cli.js",
   "scripts": {
     "doc": "jsdoc README.md lib && open out/index.html",
     "test": "NODE_ENV=test nyc mocha --exit"
@@ -16,5 +17,17 @@
     "jsdoc": "3.5.5",
     "mocha": "6.0.2",
     "nyc": "13.3.0"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "per-file": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100,
+    "reporter": [
+      "html",
+      "text"
+    ]
   }
 }

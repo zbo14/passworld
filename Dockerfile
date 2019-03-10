@@ -1,10 +1,11 @@
 FROM node:10.15.2-alpine
 
-COPY . /
-
-RUN apk add --no-cache --update --upgrade openssh && \
-    adduser -D passworld
+COPY . /app
 
 WORKDIR /app
 
-CMD node server
+RUN apk add --no-cache --update --upgrade openssh && \
+    adduser -D passworld && \
+    npm link
+
+ENTRYPOINT sh entrypoint

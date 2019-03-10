@@ -1,3 +1,0 @@
-AllowUsers passworld
-HostKey /root/.ssh/id_ed25519
-PermitOpen localhost:11223

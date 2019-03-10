@@ -7,27 +7,24 @@ case $COMMAND in
 		docker build --no-cache -t passworld .
 		;;
 	build-start-server)
-		PASSWORD=$2
-		sh run build-server
-		sh run start-server $PASSWORD
+		./run build-server
+		./run start-server
 		;;
 	clean)
 		docker system prune -f
 		;;
-	new-client-key)
+	init-client)
+		HOSTNAME=$2
 		ssh-keygen -t ed25519 -f ~/.ssh/passworld -N ''
+		ssh-copy-id -i ~/.ssh/passworld.pub -p 11223 passworld@$HOSTNAME
 		;;
 	start-client)
 		HOSTNAME=$2
-		PORT=$3
-		ssh-copy-id -i ~/.ssh/passworld.pub -p 2200 passworld@$HOSTNAME
-		ssh -4fN -i ~/.ssh/passworld -o StrictHostKeyChecking=no -L $PORT:localhost:11223 -p 2200 passworld@$HOSTNAME
-		port=$PORT node ./app/client
+		ssh -4 -i ~/.ssh/passworld -p 11223 passworld@$HOSTNAME
 		;;
 	start-server)
-		PASSWORD=$2
-		docker run -d -p 2200:22 --name passworld passworld
-		docker exec passworld sh init $PASSWORD
+		docker run -d -p 11223:22 --name passworld passworld
+		docker exec -it passworld passwd passworld
 		;;
 	stop-server)
 		docker rm -f passworld

@@ -31,7 +31,7 @@ describe('passworld', function () {
         await passworld.encrypt(filename, '')
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Expected password to be a non-empty string\n\nUsage:  passworld encrypt FILENAME PASSWORD')
+        assert.strictEqual(message, 'Expected password to be a non-empty string\n\nUsage:  passworld <encrypt> FILENAME')
       }
     })
 
@@ -64,7 +64,7 @@ describe('passworld', function () {
         await passworld.randcrypt(filename, password, 20.2)
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Expected length to be an integer > 0\n\nUsage:  passworld randcrypt FILENAME PASSWORD LENGTH')
+        assert.strictEqual(message, 'Expected length to be an integer > 0\n\nUsage:  passworld <randcrypt> FILENAME LENGTH')
       }
     })
 
@@ -98,7 +98,7 @@ describe('passworld', function () {
         await passworld.decrypt('', password)
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Expected filename to be a non-empty string\n\nUsage:  passworld decrypt FILENAME PASSWORD [OVERWRITE]')
+        assert.strictEqual(message, 'Expected filename to be a non-empty string\n\nUsage:  passworld <decrypt> FILENAME [OVERWRITE]')
       }
     })
 

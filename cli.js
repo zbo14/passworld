@@ -13,7 +13,7 @@ Commands:
   randcrypt    Encrypt random data to a file`
 
 const run = async () => {
-  const [ command, filename, password, length ] = process.argv.slice(2)
+  const [ command, filename, password, ...rest ] = process.argv.slice(2)
 
   let message
 
@@ -24,11 +24,11 @@ const run = async () => {
         break
 
       case 'randcrypt':
-        message = await passworld.randcrypt(filename, password, +length)
+        message = await passworld.randcrypt(filename, password, +rest[0])
         break
 
       case 'decrypt':
-        message = await passworld.decrypt(filename, password)
+        message = await passworld.decrypt(filename, password, rest[0])
         break
 
       default:

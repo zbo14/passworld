@@ -87,4 +87,15 @@ describe('util', () => {
       }
     })
   })
+
+  describe('#validateOverwrite()', () => {
+    it('throws when overwrite isn\'t "yes" or "no"', () => {
+      try {
+        util.validateOverwrite(Buffer.from('yes'))
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Expected overwrite to be \'yes\' or \'no\'')
+      }
+    })
+  })
 })

@@ -88,7 +88,7 @@ describe('passworld', function () {
       await exec(`rm -r ${dirname}`)
     })
 
-    it('descrypts file', async () => {
+    it('decrypts file', async () => {
       const result = await passworld.decrypt(filename, password)
       assert.strictEqual(result, plaintext)
     })
@@ -98,7 +98,7 @@ describe('passworld', function () {
         await passworld.decrypt('', password)
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Expected filename to be a non-empty string\n\nUsage:  passworld decrypt FILENAME PASSWORD')
+        assert.strictEqual(message, 'Expected filename to be a non-empty string\n\nUsage:  passworld decrypt FILENAME PASSWORD [OVERWRITE]')
       }
     })
 
@@ -118,6 +118,13 @@ describe('passworld', function () {
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
       }
+    })
+
+    it('decrypts and overwrites file', async () => {
+      const result = await passworld.decrypt(filename, password, 'yes')
+      assert.strictEqual(result, 'Decrypted file!')
+      const { stdout } = await exec(`cat ${filename}`)
+      assert.strictEqual(stdout.trim(), plaintext)
     })
   })
 })

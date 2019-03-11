@@ -33,7 +33,7 @@ const run = async () => {
         break
 
       default:
-        message = usage
+        throw new Error(usage)
     }
 
     console.log(message)

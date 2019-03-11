@@ -1,13 +1,13 @@
 FROM node:10.15.2-alpine
 
-COPY . /app
-
 ENV PASSWORD_AUTH no
+
+COPY . /app
 
 WORKDIR /app
 
 RUN apk add --no-cache --update --upgrade openssh && \
     adduser -D passworld && \
-    npm link
+    npm i -g
 
 ENTRYPOINT sh entrypoint $PASSWORD_AUTH

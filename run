@@ -9,20 +9,20 @@ case $COMMAND in
   build-start-server)
     PASSWORD_AUTH=$2
     ./run build-server
-    ./run start-server $PASSWORD_AUTH
+    ./run start-server "$PASSWORD_AUTH"
     ;;
   clean)
     docker system prune -f
     ;;
   copy-id)
     HOSTNAME=$2
-    ssh-copy-id -i ~/.ssh/passworld/client/id_ed25519.pub -p 11223 passworld@$HOSTNAME
+    ssh-copy-id -i ~/.ssh/passworld/client/id_ed25519.pub -p 11223 passworld@"$HOSTNAME"
     ;;
   init-client)
     HOSTNAME=$2
     mkdir -p ~/.ssh/passworld/client
     ./run new-key ~/.ssh/passworld/client/id_ed25519
-    ./run copy-id $HOSTNAME
+    ./run copy-id "$HOSTNAME"
     ;;
   init-server)
     mkdir -p ~/.ssh/passworld/server
@@ -30,7 +30,7 @@ case $COMMAND in
     ;;
   new-key)
     FILENAME=$2
-    ssh-keygen -t ed25519 -f $FILENAME -N ''
+    ssh-keygen -t ed25519 -f "$FILENAME" -N ''
     ;;
   passwd)
     docker exec -it passworld passwd passworld
@@ -38,21 +38,21 @@ case $COMMAND in
   restart-server)
     PASSWORD_AUTH=$2
     ./run stop-server
-    ./run start-server $PASSWORD_AUTH
+    ./run start-server "$PASSWORD_AUTH"
     ;;
   rm-volume)
     docker volume rm passworld
     ;;
   start-client)
     HOSTNAME=$2
-    ssh -4 -i ~/.ssh/passworld/client/id_ed25519 -p 11223 passworld@$HOSTNAME
-    ;;''
+    ssh -4 -i ~/.ssh/passworld/client/id_ed25519 -p 11223 passworld@"$HOSTNAME"
+    ;;
   start-server)
     PASSWORD_AUTH=$2
 
     docker run \
       -d \
-      -e "PASSWORD_AUTH=$PASSWORD_AUTH" \
+      -e "PASSWORD_AUTH=\"$PASSWORD_AUTH\"" \
       --name passworld \
       -p 11223:22 \
       -v passworld:/home/passworld \
@@ -66,6 +66,6 @@ case $COMMAND in
     ;;
   wipe-host)
     HOSTNAME=$2
-    ssh-keygen -R [$HOSTNAME]:11223
+    ssh-keygen -R ["$HOSTNAME"]:11223
     ;;
 esac

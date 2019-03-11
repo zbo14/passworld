@@ -1,7 +1,6 @@
 'use strict'
 
 const assert = require('assert')
-const { shouldThrow } = require('./fixtures')
 const crypto = require('../lib/crypto')
 const util = require('../lib/util')
 
@@ -32,7 +31,7 @@ describe('crypto', () => {
 
       try {
         await crypto.decrypt(newDescription, password)
-        assert.fail(shouldThrow)
+        assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Invalid description')
       }
@@ -43,7 +42,7 @@ describe('crypto', () => {
 
       try {
         await crypto.decrypt(this.description, password)
-        assert.fail(shouldThrow)
+        assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
       }
@@ -56,7 +55,7 @@ describe('crypto', () => {
 
       try {
         await crypto.decrypt(newDescription, password)
-        assert.fail(shouldThrow)
+        assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
       }
@@ -69,7 +68,7 @@ describe('crypto', () => {
 
       try {
         await crypto.decrypt(newDescription, password)
-        assert.fail(shouldThrow)
+        assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
       }

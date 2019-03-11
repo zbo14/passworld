@@ -4,14 +4,13 @@
 
 const passworld = require('./lib')
 
-const usage = `
-Usage:  passworld COMMAND ARGS
+const usage =
+`Usage:  passworld COMMAND ARGS
 
 Commands:
   encrypt      Encrypt a file
   decrypt      Decrypt a file
-  randcrypt    Encrypt random data to a file
-`
+  randcrypt    Encrypt random data to a file`
 
 const run = async () => {
   const [ command, filename, password, length ] = process.argv.slice(2)
@@ -36,9 +35,9 @@ const run = async () => {
         throw new Error(usage)
     }
 
-    console.log(message)
+    console.log(message + '\n')
   } catch ({ message }) {
-    console.error(message)
+    console.error(message + '\n')
   }
 }
 

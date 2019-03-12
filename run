@@ -1,6 +1,7 @@
 #!/bin/bash
 
 COMMAND=$1
+NEXT=$2
 
 case $COMMAND in
   build-server)
@@ -9,6 +10,7 @@ case $COMMAND in
 
   build-start-server)
     PASSWORD_AUTH=$2
+    NEXT=$3
     ./run build-server
     ./run start-server "$PASSWORD_AUTH"
     ;;
@@ -19,11 +21,13 @@ case $COMMAND in
 
   copy-id)
     HOSTNAME=$2
+    NEXT=$3
     ssh-copy-id -i ~/.ssh/passworld/client/id_ed25519.pub -p 11223 passworld@"$HOSTNAME"
     ;;
 
   init-client)
     HOSTNAME=$2
+    NEXT=$3
     mkdir -p ~/.ssh/passworld/client
     ./run new-key ~/.ssh/passworld/client/id_ed25519
     ./run copy-id "$HOSTNAME"
@@ -36,6 +40,7 @@ case $COMMAND in
 
   new-key)
     FILENAME=$2
+    NEXT=$3
     ssh-keygen -t ed25519 -f "$FILENAME" -N ''
     ;;
 
@@ -45,6 +50,7 @@ case $COMMAND in
 
   restart-server)
     PASSWORD_AUTH=$2
+    NEXT=$3
     ./run stop-server
     ./run start-server "$PASSWORD_AUTH"
     ;;
@@ -55,11 +61,13 @@ case $COMMAND in
 
   start-client)
     HOSTNAME=$2
+    NEXT=$3
     ssh -4 -i ~/.ssh/passworld/client/id_ed25519 -p 11223 passworld@"$HOSTNAME"
     ;;
 
   start-server)
     PASSWORD_AUTH=$2
+    NEXT=$3
 
     docker run \
       -d \
@@ -79,6 +87,12 @@ case $COMMAND in
 
   wipe-host)
     HOSTNAME=$2
+    NEXT=$3
     ssh-keygen -R ["$HOSTNAME"]:11223
     ;;
 esac
+
+
+if [ "$NEXT" ]
+then ./run $NEXT
+fi

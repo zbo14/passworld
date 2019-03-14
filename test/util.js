@@ -89,12 +89,12 @@ describe('util', () => {
   })
 
   describe('#validateOverwrite()', () => {
-    it('throws when overwrite isn\'t "yes" or "no"', () => {
+    it('throws when overwrite isn\'t a boolean', () => {
       try {
-        util.validateOverwrite(Buffer.from('yes'))
+        util.validateOverwrite('true')
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Expected overwrite to be \'yes\' or \'no\'')
+        assert.strictEqual(message, 'Expected overwrite to be a boolean')
       }
     })
   })

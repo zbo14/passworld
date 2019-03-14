@@ -58,7 +58,11 @@ const run = async () => {
         break
 
       case 'decrypt':
-        message = await passworld.decrypt(filename, password, rest[0])
+        if (rest[0] !== 'yes' && rest[0] !== 'no') {
+          throw new Error('Expected overwrite to be \'yes\' or \'no\'')
+        }
+
+        message = await passworld.decrypt(filename, password, rest[0] === 'yes')
         break
 
       default:

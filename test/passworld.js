@@ -121,7 +121,7 @@ describe('passworld', function () {
     })
 
     it('decrypts and overwrites file', async () => {
-      const result = await passworld.decrypt(filename, password, 'yes')
+      const result = await passworld.decrypt(filename, password, true)
       assert.strictEqual(result, 'Decrypted file!')
       const { stdout } = await exec(`cat ${filename}`)
       assert.strictEqual(stdout.trim(), plaintext)

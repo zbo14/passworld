@@ -26,15 +26,6 @@ describe('passworld', function () {
       assert.strictEqual(result, 'Encrypted file!')
     })
 
-    it('fails to encrypt file when validation fails', async () => {
-      try {
-        await passworld.encrypt(filename, '')
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Expected password to be a non-empty string\n\nUsage:  passworld <encrypt> FILENAME')
-      }
-    })
-
     it('fails to encrypt file that doesn\'t exist', async () => {
       try {
         await passworld.encrypt('/tmp/foobar', password)
@@ -57,15 +48,6 @@ describe('passworld', function () {
     it('encrypts random data', async () => {
       const result = await passworld.randcrypt(filename, password, length)
       assert.strictEqual(result, 'Encrypted random data!')
-    })
-
-    it('fails to encrypt random data when validation fails', async () => {
-      try {
-        await passworld.randcrypt(filename, password, 20.2)
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Expected length to be an integer > 0\n\nUsage:  passworld <randcrypt> FILENAME LENGTH')
-      }
     })
 
     it('fails to encrypt random data when write fails', async () => {
@@ -91,15 +73,6 @@ describe('passworld', function () {
     it('decrypts file', async () => {
       const result = await passworld.decrypt(filename, password)
       assert.strictEqual(result, plaintext)
-    })
-
-    it('fails to decrypt file when validation fails', async () => {
-      try {
-        await passworld.decrypt('', password)
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Expected filename to be a non-empty string\n\nUsage:  passworld <decrypt> FILENAME [OVERWRITE]')
-      }
     })
 
     it('fails to decrypt file that doesn\'t exist', async () => {

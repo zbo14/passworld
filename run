@@ -92,7 +92,6 @@ case $COMMAND in
     ;;
 esac
 
-
 if [ "$NEXT" ]
 then ./run $NEXT
 fi

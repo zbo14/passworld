@@ -28,73 +28,100 @@ describe('util', () => {
     })
   })
 
-  describe('#validateFilename()', () => {
-    it('throws when filename isn\'t string', () => {
-      try {
-        util.validateFilename(1)
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Expected filename to be a non-empty string')
-      }
+  describe('#validate()', () => {
+    describe('#validate(filename)', () => {
+      it('throws when filename isn\'t string', () => {
+        try {
+          util.validate('filename', 1)
+          assert.fail('Should throw error')
+        } catch ({ message }) {
+          assert.strictEqual(message, 'Expected filename to be a non-empty string')
+        }
+      })
+
+      it('throws when filename is empty string', () => {
+        try {
+          util.validate('filename', '')
+          assert.fail('Should throw error')
+        } catch ({ message }) {
+          assert.strictEqual(message, 'Expected filename to be a non-empty string')
+        }
+      })
+
+      it('validates', () => {
+        util.validate('filename', '/path/to/foo')
+      })
     })
 
-    it('throws when filename is empty string', () => {
-      try {
-        util.validateFilename('')
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Expected filename to be a non-empty string')
-      }
-    })
-  })
+    describe('#validate(password)', () => {
+      it('throws when password isn\'t a string', () => {
+        try {
+          util.validate('password', Symbol('test'))
+          assert.fail('Should throw error')
+        } catch ({ message }) {
+          assert.strictEqual(message, 'Expected password to be a non-empty string')
+        }
+      })
 
-  describe('#validatePassword()', () => {
-    it('throws when password isn\'t a string', () => {
-      try {
-        util.validatePassword(Symbol('test'))
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Expected password to be a non-empty string')
-      }
-    })
+      it('throws when password is an empty string', () => {
+        try {
+          util.validate('password', '')
+          assert.fail('Should throw error')
+        } catch ({ message }) {
+          assert.strictEqual(message, 'Expected password to be a non-empty string')
+        }
+      })
 
-    it('throws when password is an empty string', () => {
-      try {
-        util.validatePassword('')
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Expected password to be a non-empty string')
-      }
-    })
-  })
-
-  describe('#validateLength()', () => {
-    it('throws when length isn\'t a number', () => {
-      try {
-        util.validateLength(1.1)
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Expected length to be an integer > 0')
-      }
+      it('validates', () => {
+        util.validate('password', 'werd werds werrrrdds')
+      })
     })
 
-    it('throws when length is zero', () => {
-      try {
-        util.validateLength(0)
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Expected length to be an integer > 0')
-      }
-    })
-  })
+    describe('#validate(length)', () => {
+      it('throws when length isn\'t a number', () => {
+        try {
+          util.validate('length', 1.1)
+          assert.fail('Should throw error')
+        } catch ({ message }) {
+          assert.strictEqual(message, 'Expected length to be an integer > 0')
+        }
+      })
 
-  describe('#validateOverwrite()', () => {
-    it('throws when overwrite isn\'t a boolean', () => {
+      it('throws when length is zero', () => {
+        try {
+          util.validate('length', 0)
+          assert.fail('Should throw error')
+        } catch ({ message }) {
+          assert.strictEqual(message, 'Expected length to be an integer > 0')
+        }
+      })
+
+      it('validates', () => {
+        util.validate('length', 1e3)
+      })
+    })
+
+    describe('#validate(overwrite)', () => {
+      it('throws when overwrite isn\'t "yes" or "no"', () => {
+        try {
+          util.validate('overwrite', 'y')
+          assert.fail('Should throw error')
+        } catch ({ message }) {
+          assert.strictEqual(message, 'Expected overwrite to be \'yes\' or \'no\'')
+        }
+      })
+
+      it('validates', () => {
+        util.validate('overwrite', 'no')
+      })
+    })
+
+    it('throws if key not recognized', () => {
       try {
-        util.validateOverwrite('true')
+        util.validate('foo', 'bar')
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Expected overwrite to be a boolean')
+        assert.strictEqual(message, 'Unrecognized key')
       }
     })
   })

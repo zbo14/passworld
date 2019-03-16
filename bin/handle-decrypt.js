@@ -20,7 +20,7 @@ module.exports = async (filename, overwrite = 'no') => {
 
   validate('password', password)
 
-  const message = await passworld.decrypt(filename, password, overwrite)
+  const message = await passworld.decrypt(filename, password, overwrite === 'yes')
 
   return message
 }

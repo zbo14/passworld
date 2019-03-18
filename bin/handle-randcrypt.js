@@ -2,25 +2,19 @@
 
 const getPassword = require('./get-password')
 const passworld = require('../lib')
-const util = require('../lib/util')
+const usage = 'Usage:  passworld <randcrypt> FILENAME LENGTH [DUMP]'
+const validate = require('./validate')(usage)
 
-const validate = (key, value) => {
-  try {
-    util.validate(key, value)
-  } catch ({ message }) {
-    throw new Error(`${message}\n\nUsage:  passworld <randcrypt> FILENAME LENGTH`)
-  }
-}
+module.exports = async (filename, length, dump = 'yes') => {
+  length = +length
 
-module.exports = async (filename, length) => {
-  validate('filename', filename)
-  validate('length', length = +length)
+  validate({ filename, length, dump })
 
   const password = await getPassword()
 
-  validate('password', password)
+  validate({ password })
 
-  const message = await passworld.randcrypt(filename, password, length)
+  const message = await passworld.randcrypt(filename, password, length, dump === 'yes')
 
   return message
 }

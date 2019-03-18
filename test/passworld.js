@@ -50,6 +50,12 @@ describe('passworld', function () {
       assert.strictEqual(result, 'Encrypted random data!')
     })
 
+    it('encrypts random data and dumps generated plaintext', async () => {
+      const result = await passworld.randcrypt(filename, password, length, true)
+      const buf = Buffer.from(result, 'base64')
+      assert.strictEqual(buf.byteLength, length)
+    })
+
     it('fails to encrypt random data when write fails', async () => {
       try {
         await passworld.randcrypt(dirname, password, length)

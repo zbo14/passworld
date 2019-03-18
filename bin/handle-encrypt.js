@@ -2,22 +2,15 @@
 
 const getPassword = require('./get-password')
 const passworld = require('../lib')
-const util = require('../lib/util')
-
-const validate = (key, value) => {
-  try {
-    util.validate(key, value)
-  } catch ({ message }) {
-    throw new Error(`${message}\n\nUsage:  passworld <encrypt> FILENAME`)
-  }
-}
+const usage = 'Usage:  passworld <encrypt> FILENAME'
+const validate = require('./validate')(usage)
 
 module.exports = async filename => {
-  validate('filename', filename)
+  validate({ filename })
 
   const password = await getPassword()
 
-  validate('password', password)
+  validate({ password })
 
   const message = await passworld.encrypt(filename, password)
 

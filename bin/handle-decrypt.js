@@ -2,23 +2,15 @@
 
 const getPassword = require('./get-password')
 const passworld = require('../lib')
-const util = require('../lib/util')
-
-const validate = (key, value) => {
-  try {
-    util.validate(key, value)
-  } catch ({ message }) {
-    throw new Error(`${message}\n\nUsage:  passworld <decrypt> FILENAME [OVERWRITE]`)
-  }
-}
+const usage = 'Usage:  passworld <decrypt> FILENAME [OVERWRITE]'
+const validate = require('./validate')(usage)
 
 module.exports = async (filename, overwrite = 'no') => {
-  validate('filename', filename)
-  validate('overwrite', overwrite)
+  validate({ filename, overwrite })
 
   const password = await getPassword()
 
-  validate('password', password)
+  validate({ password })
 
   const message = await passworld.decrypt(filename, password, overwrite === 'yes')
 

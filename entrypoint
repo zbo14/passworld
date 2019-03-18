@@ -1,0 +1,5 @@
+#!/bin/sh
+
+PASSWORD_AUTH=$1
+
+/usr/sbin/sshd -4D -f /app/sshd_config -o "PasswordAuthentication=$PASSWORD_AUTH"

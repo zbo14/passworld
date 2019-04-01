@@ -3,6 +3,7 @@
 const assert = require('assert')
 const { promisify } = require('util')
 const exec = promisify(require('child_process').exec)
+const readFile = promisify(require('fs').readFile)
 const passworld = require('../lib')
 
 const dirname = '/tmp/foo'
@@ -13,11 +14,16 @@ const length = 30
 
 describe('passworld', function () {
   describe('#encrypt()', () => {
-    before(async () => {
-      await exec(`mkdir ${dirname} && echo "${plaintext}" > ${filename}`)
+    beforeEach(async () => {
+      await exec([
+        `mkdir ${dirname}`,
+        `mkdir ${dirname}/baz`,
+        `echo "${plaintext}" > ${filename}`,
+        `echo "levels" > ${dirname}/baz/bam`
+      ].join(' && '))
     })
 
-    after(async () => {
+    afterEach(async () => {
       await exec(`rm -r ${dirname}`)
     })
 
@@ -34,14 +40,25 @@ describe('passworld', function () {
         assert.strictEqual(message, 'Couldn\'t read file, check the filename')
       }
     })
+
+    it('recursively encrypts contents of directory', async () => {
+      let result = await passworld.encrypt(dirname, password)
+      assert.strictEqual(result, 'Encrypted directory!')
+
+      result = await readFile(filename, 'utf8')
+      assert.notStrictEqual(result.trim(), plaintext)
+
+      result = await readFile(dirname + '/baz/bam', 'utf8')
+      assert.notStrictEqual(result.trim(), 'levels')
+    })
   })
 
   describe('#randcrypt()', () => {
-    before(async () => {
+    beforeEach(async () => {
       await exec(`mkdir ${dirname}`)
     })
 
-    after(async () => {
+    afterEach(async () => {
       await exec(`rm -r ${dirname}`)
     })
 
@@ -67,12 +84,18 @@ describe('passworld', function () {
   })
 
   describe('#decrypt()', () => {
-    before(async () => {
-      await exec(`mkdir ${dirname} && echo "${plaintext}" > ${filename}`)
-      await passworld.encrypt(filename, password)
+    beforeEach(async () => {
+      await exec([
+        `mkdir ${dirname}`,
+        `mkdir ${dirname}/baz`,
+        `echo "${plaintext}" > ${filename}`,
+        `echo "levels" > ${dirname}/baz/bam`
+      ].join(' && '))
+
+      await passworld.encrypt(dirname, password)
     })
 
-    after(async () => {
+    afterEach(async () => {
       await exec(`rm -r ${dirname}`)
     })
 
@@ -104,6 +127,34 @@ describe('passworld', function () {
       assert.strictEqual(result, 'Decrypted file!')
       const { stdout } = await exec(`cat ${filename}`)
       assert.strictEqual(stdout.trim(), plaintext)
+    })
+
+    it('recursively decrypts contents of directory', async () => {
+      let result = await passworld.decrypt(dirname, password)
+      assert.strictEqual(result, 'Decrypted directory!')
+
+      result = await readFile(filename, 'utf8')
+      assert.strictEqual(result.trim(), plaintext)
+
+      result = await readFile(dirname + '/baz/bam', 'utf8')
+      assert.strictEqual(result.trim(), 'levels')
+    })
+
+    it('fails to recursively decrypt contents of directory multiple times', async () => {
+      await passworld.decrypt(dirname, password)
+
+      try {
+        await passworld.decrypt(dirname, password)
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Invalid description')
+      }
+
+      let result = await readFile(filename, 'utf8')
+      assert.strictEqual(result.trim(), plaintext)
+
+      result = await readFile(dirname + '/baz/bam', 'utf8')
+      assert.strictEqual(result.trim(), 'levels')
     })
   })
 })

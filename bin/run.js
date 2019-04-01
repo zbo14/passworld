@@ -6,9 +6,10 @@ const handleRandcrypt = require('./handle-randcrypt')
 
 const usage =
 `Usage:  passworld <command> ARGS
+
 Commands:
-  encrypt      Encrypt a file
-  decrypt      Decrypt a file
+  encrypt      Encrypt a file or directory
+  decrypt      Decrypt a file or directory
   randcrypt    Encrypt random data to a file`
 
 module.exports = async () => {
@@ -22,12 +23,12 @@ module.exports = async () => {
         message = await handleEncrypt(...args)
         break
 
-      case 'randcrypt':
-        message = await handleRandcrypt(...args)
-        break
-
       case 'decrypt':
         message = await handleDecrypt(...args)
+        break
+
+      case 'randcrypt':
+        message = await handleRandcrypt(...args)
         break
 
       default:

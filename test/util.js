@@ -1,9 +1,50 @@
 'use strict'
 
 const assert = require('assert')
+const { promisify } = require('util')
+const exec = promisify(require('child_process').exec)
 const util = require('../lib/util')
 
 describe('util', () => {
+  describe('#listFilenames()', () => {
+    before(async () => {
+      await exec([
+        'mkdir /tmp/foo',
+        'mkdir /tmp/foo/bar',
+        'mkdir /tmp/foo/bar/baz',
+        'touch /tmp/foo/fu',
+        'touch /tmp/foo/bar/bah',
+        'touch /tmp/foo/bar/baz/bam'
+      ].join(' && '))
+    })
+
+    after(async () => {
+      await exec('rm -r /tmp/foo')
+    })
+
+    it('lists first level of filenames in directory', async () => {
+      const filenames = await util.listFilenames('/tmp/foo')
+
+      assert.deepStrictEqual(filenames, [ '/tmp/foo/fu' ])
+    })
+
+    it('recursively lists filenames in directory', async () => {
+      const filenames = await util.listFilenames('/tmp/foo', true)
+
+      assert.deepStrictEqual(filenames.sort(), [
+        '/tmp/foo/bar/bah',
+        '/tmp/foo/bar/baz/bam',
+        '/tmp/foo/fu'
+      ])
+    })
+
+    it('returns no single filename when filename is passed', async () => {
+      const filenames = await util.listFilenames('/tmp/foo/fu')
+
+      assert.deepStrictEqual(filenames, [ '/tmp/foo/fu' ])
+    })
+  })
+
   describe('#serialize()', () => {
     it('fails to serialize when there are additional fields', () => {
       try {

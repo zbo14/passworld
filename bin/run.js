@@ -1,34 +1,41 @@
 'use strict'
 
-const handleDecrypt = require('./handle-decrypt')
-const handleEncrypt = require('./handle-encrypt')
-const handleRandcrypt = require('./handle-randcrypt')
+const handlers = require('./handlers')
 
-const usage =
-`Usage:  passworld <command> ARGS
-
-Commands:
-  encrypt      Encrypt a file or directory
-  decrypt      Decrypt a file or directory
-  randcrypt    Encrypt random data to a file`
+const usage = [
+  'Usage:  passworld <command> [OPTIONS] ARGS\n',
+  'Commands:',
+  '  encrypt      Encrypt a file or directory',
+  '  decrypt      Decrypt a file or directory',
+  '  randcrypt    Encrypt random data to a file'
+].join('\n')
 
 module.exports = async () => {
-  const [ command, ...args ] = process.argv.slice(2)
+  const [ command, ...params ] = process.argv.slice(2)
+
+  const args = []
+  const opts = new Set()
+
+  params.forEach(param => {
+    param.startsWith('-')
+      ? opts.add(param)
+      : args.push(param)
+  })
 
   let message
 
   try {
     switch (command) {
       case 'encrypt':
-        message = await handleEncrypt(...args)
+        message = await handlers.encrypt(...args, opts)
         break
 
       case 'decrypt':
-        message = await handleDecrypt(...args)
+        message = await handlers.decrypt(...args, opts)
         break
 
       case 'randcrypt':
-        message = await handleRandcrypt(...args)
+        message = await handlers.randcrypt(...args, opts)
         break
 
       default:

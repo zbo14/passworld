@@ -24,7 +24,7 @@ describe('passworld', function () {
     })
 
     afterEach(async () => {
-      await exec(`rm -r ${dirname}`)
+      await exec(`rm -rf ${dirname}`)
     })
 
     it('encrypts file', async () => {
@@ -41,8 +41,8 @@ describe('passworld', function () {
       }
     })
 
-    it('recursively encrypts contents of directory', async () => {
-      let result = await passworld.encrypt(dirname, password)
+    it('encrypts contents of directory and its subdirectories', async () => {
+      let result = await passworld.encrypt(dirname, password, { recursive: true })
       assert.strictEqual(result, 'Encrypted directory!')
 
       result = await readFile(filename, 'utf8')
@@ -59,7 +59,7 @@ describe('passworld', function () {
     })
 
     afterEach(async () => {
-      await exec(`rm -r ${dirname}`)
+      await exec(`rm -rf ${dirname}`)
     })
 
     it('encrypts random data', async () => {
@@ -68,7 +68,7 @@ describe('passworld', function () {
     })
 
     it('encrypts random data and dumps generated plaintext', async () => {
-      const result = await passworld.randcrypt(filename, password, length, true)
+      const result = await passworld.randcrypt(filename, password, length, { dump: true })
       const buf = Buffer.from(result, 'base64')
       assert.strictEqual(buf.byteLength, length)
     })
@@ -92,11 +92,11 @@ describe('passworld', function () {
         `echo "levels" > ${dirname}/baz/bam`
       ].join(' && '))
 
-      await passworld.encrypt(dirname, password)
+      await passworld.encrypt(dirname, password, { recursive: true })
     })
 
     afterEach(async () => {
-      await exec(`rm -r ${dirname}`)
+      await exec(`rm -rf ${dirname}`)
     })
 
     it('decrypts file', async () => {
@@ -123,34 +123,26 @@ describe('passworld', function () {
     })
 
     it('decrypts and overwrites file', async () => {
-      const result = await passworld.decrypt(filename, password, true)
+      const result = await passworld.decrypt(filename, password, { overwrite: true })
       assert.strictEqual(result, 'Decrypted file!')
       const { stdout } = await exec(`cat ${filename}`)
       assert.strictEqual(stdout.trim(), plaintext)
     })
 
-    it('recursively decrypts contents of directory', async () => {
-      let result = await passworld.decrypt(dirname, password)
+    it('decrypts contents of directory and its subdirectories', async () => {
+      const result = await passworld.decrypt(dirname, password, { recursive: true })
+      assert.strictEqual(typeof result, 'string')
+      const parts = result.split('\n').sort()
+      assert.strictEqual(parts.length, 2)
+      assert(parts[0].includes('/tmp/foo/bar:'))
+      assert(parts[1].includes('/tmp/foo/baz/bam:'))
+    })
+
+    it('decrypts contents of directory and its subdirectories and overwrites them', async () => {
+      let result = await passworld.decrypt(dirname, password, { overwrite: true, recursive: true })
       assert.strictEqual(result, 'Decrypted directory!')
 
       result = await readFile(filename, 'utf8')
-      assert.strictEqual(result.trim(), plaintext)
-
-      result = await readFile(dirname + '/baz/bam', 'utf8')
-      assert.strictEqual(result.trim(), 'levels')
-    })
-
-    it('fails to recursively decrypt contents of directory multiple times', async () => {
-      await passworld.decrypt(dirname, password)
-
-      try {
-        await passworld.decrypt(dirname, password)
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Invalid description')
-      }
-
-      let result = await readFile(filename, 'utf8')
       assert.strictEqual(result.trim(), plaintext)
 
       result = await readFile(dirname + '/baz/bam', 'utf8')

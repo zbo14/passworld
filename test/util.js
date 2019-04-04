@@ -24,11 +24,10 @@ describe('util', () => {
 
     it('lists first level of filenames in directory', async () => {
       const filenames = await util.listFilenames('/tmp/foo')
-
       assert.deepStrictEqual(filenames, [ '/tmp/foo/fu' ])
     })
 
-    it('recursively lists filenames in directory', async () => {
+    it('lists filenames in directory and its subdirectories', async () => {
       const filenames = await util.listFilenames('/tmp/foo', true)
 
       assert.deepStrictEqual(filenames.sort(), [
@@ -38,10 +37,9 @@ describe('util', () => {
       ])
     })
 
-    it('returns no single filename when filename is passed', async () => {
+    it('returns empty array when filename is passed', async () => {
       const filenames = await util.listFilenames('/tmp/foo/fu')
-
-      assert.deepStrictEqual(filenames, [ '/tmp/foo/fu' ])
+      assert.deepStrictEqual(filenames, [])
     })
   })
 

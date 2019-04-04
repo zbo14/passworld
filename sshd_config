@@ -3,7 +3,7 @@ AllowTcpForwarding no
 AllowUsers passworld
 ChallengeResponseAuthentication no
 ClientAliveCountMax 0
-ClientAliveInterval 60
+ClientAliveInterval 300
 GatewayPorts no
 HostKey /root/.ssh/id_ed25519
 MaxAuthTries 3

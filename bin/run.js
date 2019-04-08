@@ -22,27 +22,18 @@ module.exports = async () => {
       : args.push(param)
   })
 
-  let message
-
   try {
     switch (command) {
       case 'encrypt':
-        message = await handlers.encrypt(...args, opts)
-        break
-
       case 'decrypt':
-        message = await handlers.decrypt(...args, opts)
-        break
-
       case 'randcrypt':
-        message = await handlers.randcrypt(...args, opts)
-        break
+        const message = await handlers[ command ](...args, opts)
+
+        return console.log(message)
 
       default:
         throw new Error(usage)
     }
-
-    console.log(message)
   } catch ({ message }) {
     console.error(message)
   }

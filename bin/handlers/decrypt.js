@@ -6,6 +6,7 @@ const util = require('../util')
 const usage = [
   'Usage:  passworld <decrypt> [OPTIONS] PATH\n',
   'Options:',
+  '  -g    do gzip decompression after decryption',
   '  -o    overwrite the file or directory',
   '  -r    recurse through subdirectories'
 ].join('\n')
@@ -19,10 +20,11 @@ module.exports = async (path, opts) => {
 
   validate('password', password)
 
+  const gunzip = opts.has('-g')
   const overwrite = opts.has('-o')
-  const recursive = opts.has('-r')
+  const recurse = opts.has('-r')
 
-  const message = await passworld.decrypt(path, password, { overwrite, recursive })
+  const result = await passworld.decrypt(path, password, { gunzip, overwrite, recurse })
 
-  return message
+  return util.stringify(result)
 }

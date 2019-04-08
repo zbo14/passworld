@@ -4,22 +4,22 @@ const assert = require('assert')
 const { promisify } = require('util')
 const exec = promisify(require('child_process').exec)
 const readFile = promisify(require('fs').readFile)
-const passworld = require('../lib')
+const passworld = require('../../lib')
 
 const dirname = '/tmp/foo'
 const filename = `${dirname}/bar`
 const password = 'oogly boogly'
-const plaintext = 'secreting secrets so secretive'
+const plaintext = Buffer.from('secreting secrets so secretive')
 const length = 30
 
-describe('passworld', function () {
+describe('lib/index', function () {
   describe('#encrypt()', () => {
     beforeEach(async () => {
       await exec([
         `mkdir ${dirname}`,
         `mkdir ${dirname}/baz`,
-        `echo "${plaintext}" > ${filename}`,
-        `echo "levels" > ${dirname}/baz/bam`
+        `echo "${plaintext}\\c" > ${filename}`,
+        `echo "levels\\c" > ${dirname}/baz/bam`
       ].join(' && '))
     })
 
@@ -42,14 +42,14 @@ describe('passworld', function () {
     })
 
     it('encrypts contents of directory and its subdirectories', async () => {
-      let result = await passworld.encrypt(dirname, password, { recursive: true })
+      let result = await passworld.encrypt(dirname, password, { recurse: true })
       assert.strictEqual(result, 'Encrypted directory!')
 
-      result = await readFile(filename, 'utf8')
-      assert.notStrictEqual(result.trim(), plaintext)
+      result = await readFile(filename)
+      assert(!result.equals(plaintext))
 
       result = await readFile(dirname + '/baz/bam', 'utf8')
-      assert.notStrictEqual(result.trim(), 'levels')
+      assert.notStrictEqual(result, 'levels')
     })
   })
 
@@ -88,11 +88,11 @@ describe('passworld', function () {
       await exec([
         `mkdir ${dirname}`,
         `mkdir ${dirname}/baz`,
-        `echo "${plaintext}" > ${filename}`,
-        `echo "levels" > ${dirname}/baz/bam`
+        `echo "${plaintext}\\c" > ${filename}`,
+        `echo "levels\\c" > ${dirname}/baz/bam`
       ].join(' && '))
 
-      await passworld.encrypt(dirname, password, { recursive: true })
+      await passworld.encrypt(dirname, password, { recurse: true })
     })
 
     afterEach(async () => {
@@ -101,7 +101,8 @@ describe('passworld', function () {
 
     it('decrypts file', async () => {
       const result = await passworld.decrypt(filename, password)
-      assert.strictEqual(result, plaintext)
+      assert(Buffer.isBuffer(result))
+      assert.strictEqual(result.toString().trim(), plaintext.toString())
     })
 
     it('fails to decrypt file that doesn\'t exist', async () => {
@@ -126,27 +127,27 @@ describe('passworld', function () {
       const result = await passworld.decrypt(filename, password, { overwrite: true })
       assert.strictEqual(result, 'Decrypted file!')
       const { stdout } = await exec(`cat ${filename}`)
-      assert.strictEqual(stdout.trim(), plaintext)
+      assert.strictEqual(stdout.trim(), plaintext.toString())
     })
 
     it('decrypts contents of directory and its subdirectories', async () => {
-      const result = await passworld.decrypt(dirname, password, { recursive: true })
-      assert.strictEqual(typeof result, 'string')
-      const parts = result.split('\n').sort()
-      assert.strictEqual(parts.length, 2)
-      assert(parts[0].includes('/tmp/foo/bar:'))
-      assert(parts[1].includes('/tmp/foo/baz/bam:'))
+      const result = await passworld.decrypt(dirname, password, { recurse: true })
+
+      assert.deepStrictEqual(result, {
+        '/tmp/foo/bar': plaintext,
+        '/tmp/foo/baz/bam': Buffer.from('levels')
+      })
     })
 
     it('decrypts contents of directory and its subdirectories and overwrites them', async () => {
-      let result = await passworld.decrypt(dirname, password, { overwrite: true, recursive: true })
+      let result = await passworld.decrypt(dirname, password, { overwrite: true, recurse: true })
       assert.strictEqual(result, 'Decrypted directory!')
 
-      result = await readFile(filename, 'utf8')
-      assert.strictEqual(result.trim(), plaintext)
+      result = await readFile(filename)
+      assert(result.equals(plaintext))
 
       result = await readFile(dirname + '/baz/bam', 'utf8')
-      assert.strictEqual(result.trim(), 'levels')
+      assert.strictEqual(result, 'levels')
     })
   })
 })

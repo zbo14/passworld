@@ -1,16 +1,21 @@
 'use strict'
 
 const assert = require('assert')
-const crypto = require('../lib/crypto')
-const util = require('../lib/util')
+const crypto = require('../../lib/crypto')
+const util = require('../../lib/util')
 
 const password = 'baz bam'
-const plaintext = 'foobar'
+const plaintext = Buffer.from('foobar')
 
-describe('crypto', () => {
+describe('lib/crypto', () => {
   describe('#encrypt()', () => {
     it('encrypts a string with a password', async () => {
       const description = await crypto.encrypt(plaintext, password)
+      assert.strictEqual(typeof description, 'string')
+    })
+
+    it('compresses then encrypts the string', async () => {
+      const description = await crypto.encrypt(plaintext, password, { gzip: true })
       assert.strictEqual(typeof description, 'string')
     })
   })
@@ -23,7 +28,15 @@ describe('crypto', () => {
 
     it('decrypts the data with a password string', async () => {
       const result = await crypto.decrypt(this.description, password)
-      assert.strictEqual(result.toString(), plaintext)
+      assert(Buffer.isBuffer(result))
+      assert(result.equals(plaintext))
+    })
+
+    it('decrypts and then decompresses the data', async () => {
+      const description = await crypto.encrypt(plaintext, password, { gzip: true })
+      const result = await crypto.decrypt(description, password, { gunzip: true })
+      assert(Buffer.isBuffer(result))
+      assert(result.equals(plaintext))
     })
 
     it('fails to decrypt invalid description', async () => {
@@ -71,6 +84,15 @@ describe('crypto', () => {
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
+      }
+    })
+
+    it('fails to decompress after decryption', async () => {
+      try {
+        await crypto.decrypt(this.description, password, { gunzip: true })
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Decompression failed')
       }
     })
   })

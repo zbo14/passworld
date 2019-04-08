@@ -3,9 +3,9 @@
 const assert = require('assert')
 const { promisify } = require('util')
 const exec = promisify(require('child_process').exec)
-const util = require('../lib/util')
+const util = require('../../lib/util')
 
-describe('util', () => {
+describe('lib/util', () => {
   describe('#listFilenames()', () => {
     before(async () => {
       await exec([
@@ -43,20 +43,9 @@ describe('util', () => {
     })
   })
 
-  describe('#serialize()', () => {
-    it('fails to serialize when there are additional fields', () => {
-      try {
-        util.serialize({ foo: 'bar' })
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Invalid description')
-      }
-    })
-  })
-
   describe('#deserialize()', () => {
-    it('fails to deserialize when there are additional fields', () => {
-      const b64 = Buffer.from('{ "foo": "bar" }').toString('base64')
+    it('fails to deserialize invalid JSON', () => {
+      const b64 = Buffer.from('{ "foo: "bar" }').toString('base64')
 
       try {
         util.deserialize(b64)

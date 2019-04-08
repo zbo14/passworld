@@ -1,0 +1,40 @@
+#!/bin/bash
+
+COMMAND=$1
+
+case $COMMAND in
+  copy-id)
+    HOSTNAME=$2
+    ssh-copy-id -i ~/.ssh/passworld/client/id_ed25519.pub -p 11223 passworld@"$HOSTNAME"
+    ;;
+
+  init)
+    HOSTNAME=$2
+    mkdir -p ~/.ssh/passworld/client
+    passworld-client new-key ~/.ssh/passworld/client/id_ed25519
+    passworld-client copy-id "$HOSTNAME"
+    ;;
+
+  new-key)
+    ssh-keygen -t ed25519 -f ~/.ssh/passworld/client/id_ed25519 -N ''
+    ;;
+
+  ssh)
+    HOSTNAME=$2
+    ssh -4 -i ~/.ssh/passworld/client/id_ed25519 -p 11223 passworld@"$HOSTNAME"
+    ;;
+
+  wipe-host)
+    HOSTNAME=$2
+    ssh-keygen -R ["$HOSTNAME"]:11223
+    ;;
+
+  *)
+  echo $'Usage: passworld-client <command> [OPTIONS] ARGS
+
+Commands:
+  init    Setup SSH keys and copy public key to server
+  ssh     SSH into the server'
+
+    ;;
+esac

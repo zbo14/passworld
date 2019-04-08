@@ -1,0 +1,70 @@
+#!/bin/bash
+
+COMMAND=$1
+
+case $COMMAND in
+  build)
+    docker build --no-cache -t passworld .
+    ;;
+
+  build-start)
+    AUTH=$2
+    passworld-server build
+    passworld-server start "$AUTH"
+    ;;
+
+  init)
+    mkdir -p ~/.ssh/passworld/server
+    passworld-server new-key
+    ;;
+
+  new-key)
+    ssh-keygen -t ed25519 -f ~/.ssh/passworld/server/id_ed25519 -N ''
+    ;;
+
+  passwd)
+    docker exec -it passworld passwd passworld
+    ;;
+
+  restart)
+    AUTH=$2
+    passworld-server stop
+    passworld-server start "$AUTH"
+    ;;
+
+  start)
+    AUTH=$2
+    PASSWORD_AUTH=$([ "$AUTH" == "-p" ] && echo "yes" || echo "no")
+
+    docker run \
+      -d \
+      -e "PASSWORD_AUTH=$PASSWORD_AUTH" \
+      --name passworld \
+      -p 11223:22 \
+      -v passworld:/home/passworld \
+      -v ~/.ssh/passworld/server:/root/.ssh:ro \
+      passworld
+
+    passworld-server passwd
+    ;;
+
+  stop)
+    RM_VOLUME=$2
+
+    docker rm -f passworld
+
+    [ "$RM_VOLUME" == "-v" ] && docker volume rm passworld
+    ;;
+
+  *)
+    echo $'Usage: passworld-server <command> [OPTIONS] ARGS
+
+Commands:
+  build          Build the server image
+  build-start    Build the server image and start a container with the image
+  init           Setup SSH keys
+  restart        Stop and start the container
+  start          Start the container
+  stop           Stop the container'
+    ;;
+esac

@@ -29,7 +29,7 @@ const read = process => {
 const dirname = '/tmp/foo'
 const filename = `${dirname}/bar`
 const password = 'oogly boogly'
-const plaintext = 'secreting secrets so secretive'
+const plaintext = Buffer.from('secreting secrets so secretive')
 const length = 30
 
 describe('CLI', function () {
@@ -52,8 +52,8 @@ describe('CLI', function () {
       await exec([
         `mkdir ${dirname}`,
         `mkdir ${dirname}/baz`,
-        `echo "${plaintext}" > ${filename}`,
-        `echo "levels" > ${dirname}/baz/bam`
+        `echo "${plaintext}\\c" > ${filename}`,
+        `echo "levels\\c" > ${dirname}/baz/bam`
       ].join(' && '))
     })
 
@@ -96,6 +96,7 @@ describe('CLI', function () {
         'Expected path to be a non-empty string\n',
         'Usage:  passworld <encrypt> [OPTIONS] PATH\n',
         'Options:',
+        '  -g    do gzip compression before encryption',
         '  -r    recurse through subdirectories'
       ].join('\n'))
     })
@@ -111,6 +112,7 @@ describe('CLI', function () {
         'Expected password to be a non-empty string\n',
         'Usage:  passworld <encrypt> [OPTIONS] PATH\n',
         'Options:',
+        '  -g    do gzip compression before encryption',
         '  -r    recurse through subdirectories'
       ].join('\n'))
     })
@@ -121,11 +123,11 @@ describe('CLI', function () {
       await exec([
         `mkdir ${dirname}`,
         `mkdir ${dirname}/baz`,
-        `echo "${plaintext}" > ${filename}`,
-        `echo "levels" > ${dirname}/baz/bam`
+        `echo "${plaintext}\\c" > ${filename}`,
+        `echo "levels\\c" > ${dirname}/baz/bam`
       ].join(' && '))
 
-      await passworld.encrypt(dirname, password, { recursive: true })
+      await passworld.encrypt(dirname, password, { recurse: true })
     })
 
     afterEach(async () => {
@@ -138,7 +140,7 @@ describe('CLI', function () {
       assert.strictEqual(result, 'Enter password:')
       await write(subprocess, password + '\n')
       result = await read(subprocess)
-      assert.strictEqual(result, plaintext)
+      assert.strictEqual(result, plaintext.toString())
     })
 
     it('decrypts directory', async () => {
@@ -170,6 +172,7 @@ describe('CLI', function () {
         'Expected path to be a non-empty string\n',
         'Usage:  passworld <decrypt> [OPTIONS] PATH\n',
         'Options:',
+        '  -g    do gzip decompression after decryption',
         '  -o    overwrite the file or directory',
         '  -r    recurse through subdirectories'
       ].join('\n'))
@@ -186,6 +189,7 @@ describe('CLI', function () {
         'Expected password to be a non-empty string\n',
         'Usage:  passworld <decrypt> [OPTIONS] PATH\n',
         'Options:',
+        '  -g    do gzip decompression after decryption',
         '  -o    overwrite the file or directory',
         '  -r    recurse through subdirectories'
       ].join('\n'))
@@ -228,7 +232,8 @@ describe('CLI', function () {
         'Expected length to be an integer > 0\n',
         'Usage:  passworld <randcrypt> [OPTIONS] PATH LENGTH\n',
         'Options:',
-        '  -d    dump the generated plaintext to stdout'
+        '  -d    dump the generated plaintext to stdout',
+        '  -g    do gzip compression before encryption'
       ].join('\n'))
     })
   })

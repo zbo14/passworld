@@ -6,7 +6,8 @@ const util = require('../util')
 const usage = [
   'Usage:  passworld <randcrypt> [OPTIONS] PATH LENGTH\n',
   'Options:',
-  '  -d    dump the generated plaintext to stdout'
+  '  -d    dump the generated plaintext to stdout',
+  '  -g    do gzip compression before encryption'
 ].join('\n')
 
 const validate = util.validator(usage)
@@ -22,7 +23,7 @@ module.exports = async (path, length, opts) => {
   validate('password', password)
 
   const dump = opts.has('-d')
-  const message = await passworld.randcrypt(path, password, length, { dump })
+  const result = await passworld.randcrypt(path, password, length, { dump })
 
-  return message
+  return util.stringify(result)
 }

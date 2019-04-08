@@ -1,10 +1,11 @@
 {
   "name": "passworld",
   "version": "1.0.0",
+  "main": "./lib/index.js",
   "bin": "./bin/index.js",
   "scripts": {
     "doc": "jsdoc README.md lib && open out/index.html",
-    "test": "NODE_ENV=test nyc mocha --exit"
+    "test": "NODE_ENV=test nyc mocha --recursive --exit"
   },
   "author": "Zachary Balder",
   "devDependencies": {

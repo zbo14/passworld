@@ -30,7 +30,7 @@ case $COMMAND in
     ;;
 
   *)
-  echo $'Usage: passworld-client <command> [OPTIONS] ARGS
+    echo $'Usage: passworld-client <command> [OPTIONS] ARGS
 
 Commands:
   init    Setup SSH keys and copy public key to server

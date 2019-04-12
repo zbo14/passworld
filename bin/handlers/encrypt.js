@@ -21,6 +21,7 @@ module.exports = async (path, opts) => {
 
   const gzip = opts.has('-g')
   const recursive = opts.has('-r')
+
   const result = await passworld.encrypt(path, password, { gzip, recursive })
 
   return util.stringify(result)

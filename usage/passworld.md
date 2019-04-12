@@ -62,20 +62,22 @@ $ passworld decrypt [-g] [-o] [-r] /path/to/dir
 
 ## Encrypt random data to a file
 
-Generate pseudo-random data of specified byte-length, encrypt it, and write the result to a file.
+Generate pseudo-random base64-encoded data of specified length, encrypt it, and write the result to a file.
+
+This is useful for generating passwords since the base64 alphabet *usually* satisfies password constraints.
 
 ### JS
 
 ```js
-const byteLength = 32
+const length = 32
 
-await passworld.randcrypt('/path/to/file', 'password', byteLength, { dump: Boolean, gzip: Boolean })
+await passworld.randcrypt('/path/to/file', 'password', length, { dump: Boolean, gzip: Boolean })
 ```
 
 ### CLI
 
 ```
-$ BYTE_LENGTH=32
+$ LENGTH=32
 
-$ passworld randcrypt [-d] [-g] /path/to/file $BYTE_LENGTH
+$ passworld randcrypt [-d] [-g] /path/to/file $LENGTH
 ```

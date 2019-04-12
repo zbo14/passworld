@@ -220,8 +220,7 @@ describe('CLI', function () {
       assert.strictEqual(result, 'Enter password:')
       await write(subprocess, password + '\n')
       result = await read(subprocess)
-      const buf = Buffer.from(result, 'base64')
-      assert.strictEqual(buf.byteLength, 30)
+      assert.strictEqual(result.length, 30)
     })
 
     it('errors when bad length is passed', async () => {

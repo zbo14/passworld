@@ -53,36 +53,6 @@ describe('lib/index', function () {
     })
   })
 
-  describe('#randcrypt()', () => {
-    beforeEach(async () => {
-      await exec(`mkdir ${dirname}`)
-    })
-
-    afterEach(async () => {
-      await exec(`rm -rf ${dirname}`)
-    })
-
-    it('encrypts random data', async () => {
-      const result = await passworld.randcrypt(filename, password, length)
-      assert.strictEqual(result, 'Encrypted random data!')
-    })
-
-    it('encrypts random data and dumps generated plaintext', async () => {
-      const result = await passworld.randcrypt(filename, password, length, { dump: true })
-      const buf = Buffer.from(result, 'base64')
-      assert.strictEqual(buf.byteLength, length)
-    })
-
-    it('fails to encrypt random data when write fails', async () => {
-      try {
-        await passworld.randcrypt(dirname, password, length)
-        assert.fail('Should throw error')
-      } catch ({ message }) {
-        assert.strictEqual(message, 'Couldn\'t write file, check the filename')
-      }
-    })
-  })
-
   describe('#decrypt()', () => {
     beforeEach(async () => {
       await exec([
@@ -148,6 +118,35 @@ describe('lib/index', function () {
 
       result = await readFile(dirname + '/baz/bam', 'utf8')
       assert.strictEqual(result, 'levels')
+    })
+  })
+
+  describe('#randcrypt()', () => {
+    beforeEach(async () => {
+      await exec(`mkdir ${dirname}`)
+    })
+
+    afterEach(async () => {
+      await exec(`rm -rf ${dirname}`)
+    })
+
+    it('encrypts random data', async () => {
+      const result = await passworld.randcrypt(filename, password, length)
+      assert.strictEqual(result, 'Encrypted random data!')
+    })
+
+    it('encrypts random data and dumps plaintext', async () => {
+      const result = await passworld.randcrypt(filename, password, length, { charLength: true, dump: true })
+      assert.strictEqual(result.length, length)
+    })
+
+    it('fails to encrypt random data when write fails', async () => {
+      try {
+        await passworld.randcrypt(dirname, password, length)
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Couldn\'t write file, check the filename')
+      }
     })
   })
 })

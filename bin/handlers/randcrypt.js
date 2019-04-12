@@ -23,7 +23,9 @@ module.exports = async (path, length, opts) => {
   validate('password', password)
 
   const dump = opts.has('-d')
-  const result = await passworld.randcrypt(path, password, length, { dump })
+  const gzip = opts.has('-g')
+
+  const result = await passworld.randcrypt(path, password, length, { dump, gzip })
 
   return util.stringify(result)
 }

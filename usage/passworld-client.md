@@ -1,5 +1,7 @@
 # passworld-client
 
+A client for accessing `passworld-server`.
+
 ## Initialize
 
 ```

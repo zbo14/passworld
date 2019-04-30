@@ -5,7 +5,7 @@
   "bin": "./bin/index.js",
   "scripts": {
     "doc": "jsdoc README.md lib && open out/index.html",
-    "test": "NODE_ENV=test nyc mocha --recursive --exit"
+    "test": "nyc mocha --recursive --exit"
   },
   "author": "Zachary Balder",
   "devDependencies": {
@@ -16,7 +16,7 @@
     "eslint-plugin-promise": "4.0.1",
     "eslint-plugin-standard": "4.0.0",
     "jsdoc": "3.5.5",
-    "mocha": "6.1.2",
+    "mocha": "6.1.4",
     "nyc": "13.3.0"
   },
   "nyc": {

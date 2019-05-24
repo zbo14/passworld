@@ -23,3 +23,17 @@ Check out the [usage docs](./usage)!
 ## Test
 
 `npm test`
+
+## Lint
+
+`npm run lint`
+
+## Contributing
+
+Please do!
+
+If you find a bug or want a feature added, open an issue. Then, if you feel so inclined, open a pull request addressing the issue. You should push your changes to a feature branch and request merge to `develop`.
+
+You don't *have* to open an issue before a pull request, but it facilitates discussion and gives you a chance to receive feedback before diving into code.
+
+Make sure linting and tests pass and coverage is 💯 before opening a pull request!

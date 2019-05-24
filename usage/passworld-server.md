@@ -26,7 +26,7 @@ $ passworld-server start [-p]
 
 Start the server with password authentication enabled `[-p]` or disabled. Even when password authentication is disabled, you'll be prompted to enter a password for user `passworld`. Clients will still need to authenticate with their public keys.
 
-Note: you should enable password authentication *only* when a client needs to copy its public key. Once the client has copied its public key, you should restart the server with password authentication disabled. If/when another client needs to copy its public key, you can restart the server with password authentication enabled and disable it again once the client has copied its public key.
+**Note:** you should enable password authentication *only* when a client needs to copy its public key. Once the client has copied its public key, you should restart the server with password authentication disabled. If/when another client needs to copy its public key, you can restart the server with password authentication enabled and disable it again once the client has copied its public key.
 
 ## Stop
 

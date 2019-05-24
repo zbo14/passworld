@@ -6,7 +6,7 @@ const exec = promisify(require('child_process').exec)
 const readFile = promisify(require('fs').readFile)
 const passworld = require('../../lib')
 
-const dirname = '/tmp/foo'
+const dirname = `${__dirname}/foo`
 const filename = `${dirname}/bar`
 const password = 'oogly boogly'
 const plaintext = Buffer.from('secreting secrets so secretive')
@@ -34,7 +34,7 @@ describe('lib/index', function () {
 
     it('fails to encrypt file that doesn\'t exist', async () => {
       try {
-        await passworld.encrypt('/tmp/foobar', password)
+        await passworld.encrypt(`${__dirname}/foobar`, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Couldn\'t read file, check the filename')
@@ -77,7 +77,7 @@ describe('lib/index', function () {
 
     it('fails to decrypt file that doesn\'t exist', async () => {
       try {
-        await passworld.decrypt('/tmp/foobar', password)
+        await passworld.decrypt(`${__dirname}/foobar`, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Couldn\'t read file, check the filename')
@@ -104,8 +104,8 @@ describe('lib/index', function () {
       const result = await passworld.decrypt(dirname, password, { recurse: true })
 
       assert.deepStrictEqual(result, {
-        '/tmp/foo/bar': plaintext,
-        '/tmp/foo/baz/bam': Buffer.from('levels')
+        [ `${__dirname}/foo/bar` ]: plaintext,
+        [ `${__dirname}/foo/baz/bam` ]: Buffer.from('levels')
       })
     })
 

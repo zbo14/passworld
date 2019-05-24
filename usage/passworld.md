@@ -2,7 +2,7 @@
 
 Use the `passworld` library or CLI tool to encrypt and decrypt your files and directories.
 
-Note: each of the CLI commands will prompt you for a password.
+**Note:** each of the CLI commands will prompt you for a password.
 
 ## Encrypt a file
 

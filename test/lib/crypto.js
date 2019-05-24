@@ -21,13 +21,13 @@ describe('lib/crypto', () => {
   })
 
   describe('#decrypt()', () => {
-    before(async () => {
-      this.description = await crypto.encrypt(plaintext, password)
-      this.descObj = util.deserialize(this.description)
+    beforeEach(async () => {
+      this.descStr = await crypto.encrypt(plaintext, password)
+      this.descObj = util.deserialize(this.descStr)
     })
 
     it('decrypts the data with a password string', async () => {
-      const result = await crypto.decrypt(this.description, password)
+      const result = await crypto.decrypt(this.descStr, password)
       assert(Buffer.isBuffer(result))
       assert(result.equals(plaintext))
     })
@@ -40,7 +40,7 @@ describe('lib/crypto', () => {
     })
 
     it('fails to decrypt invalid description', async () => {
-      const newDescription = Buffer.from(this.description, 'base64').toString('hex')
+      const newDescription = Buffer.from(this.descStr, 'base64').toString('hex')
 
       try {
         await crypto.decrypt(newDescription, password)
@@ -54,7 +54,7 @@ describe('lib/crypto', () => {
       const password = Buffer.from('bar')
 
       try {
-        await crypto.decrypt(this.description, password)
+        await crypto.decrypt(this.descStr, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
@@ -62,25 +62,35 @@ describe('lib/crypto', () => {
     })
 
     it('fails to decrypt with tampered ciphertext', async () => {
-      const newDescObj = { ...this.descObj }
-      newDescObj.ciphertext[3]--
-      const newDescription = util.serialize(newDescObj)
+      this.descObj.ciphertext[3]--
+      const descStr = util.serialize(this.descObj)
 
       try {
-        await crypto.decrypt(newDescription, password)
+        await crypto.decrypt(descStr, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
       }
     })
 
-    it('fails to decrypt with wrong salt1', async () => {
-      const newDescObj = { ...this.descObj }
-      newDescObj.salt[4]++
-      const newDescription = util.serialize(newDescObj)
+    it('fails to decrypt with wrong salt', async () => {
+      this.descObj.salt[4]++
+      const descStr = util.serialize(this.descObj)
 
       try {
-        await crypto.decrypt(newDescription, password)
+        await crypto.decrypt(descStr, password)
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Decryption failed')
+      }
+    })
+
+    it('fails to decrypt with wrong nonce', async () => {
+      this.descObj.nonce[4]++
+      const descStr = util.serialize(this.descObj)
+
+      try {
+        await crypto.decrypt(descStr, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
@@ -89,7 +99,7 @@ describe('lib/crypto', () => {
 
     it('fails to decompress after decryption', async () => {
       try {
-        await crypto.decrypt(this.description, password, { gunzip: true })
+        await crypto.decrypt(this.descStr, password, { gunzip: true })
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decompression failed')

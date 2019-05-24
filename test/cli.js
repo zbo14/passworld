@@ -13,7 +13,7 @@ const write = (process, password) => {
 }
 
 const read = process => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     process.stderr.once('data', chunk => {
       const msg = chunk.toString().trim()
       msg ? resolve(msg) : read(process).then(resolve)
@@ -26,7 +26,7 @@ const read = process => {
   })
 }
 
-const dirname = '/tmp/foo'
+const dirname = `${__dirname}/foo`
 const filename = `${dirname}/bar`
 const password = 'oogly boogly'
 const plaintext = Buffer.from('secreting secrets so secretive')
@@ -149,7 +149,7 @@ describe('CLI', function () {
       assert.strictEqual(result, 'Enter password:')
       await write(subprocess, password + '\n')
       result = await read(subprocess)
-      assert.strictEqual(result, '/tmp/foo/bar: secreting secrets so secretive')
+      assert.strictEqual(result, `${__dirname}/foo/bar: secreting secrets so secretive`)
     })
 
     it('decrypts directory and its subdirectories', async () => {
@@ -159,8 +159,8 @@ describe('CLI', function () {
       await write(subprocess, password + '\n')
       result = await read(subprocess)
       assert.strictEqual(result,
-        '/tmp/foo/bar: secreting secrets so secretive\n' +
-        '/tmp/foo/baz/bam: levels'
+        `${__dirname}/foo/bar: secreting secrets so secretive\n` +
+        `${__dirname}/foo/baz/bam: levels`
       )
     })
 

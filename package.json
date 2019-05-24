@@ -5,6 +5,7 @@
   "bin": "./bin/index.js",
   "scripts": {
     "doc": "jsdoc README.md lib && open out/index.html",
+    "lint": "eslint bin lib test",
     "test": "nyc mocha --recursive --exit"
   },
   "author": "Zachary Balder",

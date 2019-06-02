@@ -1,32 +1,46 @@
-#!/bin/bash
+#!/bin/bash -e
 
-COMMAND=$1
-
-case $COMMAND in
+case $1 in
   copy-id)
-    HOSTNAME=$2
-    ssh-copy-id -i ~/.ssh/passworld/client/id_ed25519.pub -o "IdentitiesOnly=yes" -p 11223 passworld@"$HOSTNAME"
+    if [[ $# != 2 ]]
+    then
+      echo "Usage: passworld-client <copy-id> HOSTNAME"
+    else
+      ssh-copy-id -i .ssh/client/id_ed25519.pub -o "IdentitiesOnly=yes" -p 11223 passworld@"$2"
+    fi
     ;;
 
   init)
-    HOSTNAME=$2
-    mkdir -p ~/.ssh/passworld/client
-    passworld-client new-key ~/.ssh/passworld/client/id_ed25519
-    passworld-client copy-id "$HOSTNAME"
+    if [[ $# != 2 ]]
+    then
+      echo "Usage: passworld-client <init> HOSTNAME"
+    else
+      mkdir -p .ssh/{,client}
+      ./passworld-client new-key .ssh/client/id_ed25519
+      ./passworld-client copy-id "$2"
+    fi
     ;;
 
   new-key)
-    ssh-keygen -t ed25519 -f ~/.ssh/passworld/client/id_ed25519 -N ''
+    ssh-keygen -t ed25519 -f .ssh/client/id_ed25519 -N ''
     ;;
 
   ssh)
-    HOSTNAME=$2
-    ssh -4 -i ~/.ssh/passworld/client/id_ed25519 -o "IdentitiesOnly=yes" -p 11223 passworld@"$HOSTNAME"
+    if [[ $# != 2 ]]
+    then
+      echo "Usage: passworld-client <ssh> HOSTNAME"
+    else
+      ssh -4 -i .ssh/client/id_ed25519 -o "IdentitiesOnly=yes" -p 11223 passworld@"$2"
+    fi
     ;;
 
   wipe-host)
-    HOSTNAME=$2
-    ssh-keygen -R ["$HOSTNAME"]:11223
+    if [[ $# != 2 ]]
+    then
+      echo "Usage: passworld-client <wipe-host> HOSTNAME"
+    else
+      ssh-keygen -R ["$2"]:11223
+    fi
     ;;
 
   *)

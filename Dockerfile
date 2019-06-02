@@ -11,4 +11,4 @@ RUN apk add --no-cache --update --upgrade openssh && \
     npm i -g && \
     ln -sf /dev/null ~/.ash_history
 
-ENTRYPOINT sh entrypoint $PASSWORD_AUTH
+ENTRYPOINT sh entrypoint.sh $PASSWORD_AUTH

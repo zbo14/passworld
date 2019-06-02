@@ -1,6 +1,6 @@
 # passworld
 
-An application/library to encrypt/decrypt files and directories with passwords.
+A library and CLI toolset to encrypt/decrypt files and directories with passwords.
 
 ## How does it work?
 
@@ -10,11 +10,32 @@ When you want to decrypt something you've encrypted, you hand `passworld` the ou
 
 ## Install
 
-Clone the repo, `nvm i`, and `npm i [-g]`.
+Make sure you have the following installed:
+
+* [Docker](https://docs.docker.com/install/)
+* [Node](https://nodejs.org/en/download/)
+* [nvm](https://github.com/nvm-sh/nvm)
+* [OpenSSH](https://www.openssh.com/)
+
+Then `git clone` the repo and `sh /path/to/passworld/install.sh`.
+
+This command installs the library and CLI tools.
 
 ## Usage
 
-Check out the [usage docs](./usage)!
+There are 3 major components:
+
+### [passworld](./usage/passworld.md)
+
+A Node library and a CLI for encrypting and decrypting files and directories.
+
+### [passworld-server](./usage/passworld-server.md)
+
+A Dockerized SSH server with the `passworld` CLI.
+
+### [passworld-client](./usage/passworld-client.md)
+
+A client that can SSH into `passworld-server` and encrypt/decrypt your files and directories.
 
 ## Documentation
 
@@ -32,7 +53,7 @@ Check out the [usage docs](./usage)!
 
 Please do!
 
-If you find a bug or want a feature added, open an issue. Then, if you feel so inclined, open a pull request addressing the issue. You should push your changes to a feature branch and request merge to `develop`.
+If you find a bug or want a feature added, [open an issue](https://github.com/zbo14/passworld/issues/new). Then, if you feel so inclined, [create a pull request](https://github.com/zbo14/passworld/compare/develop...) addressing the issue. You should push your changes to a feature branch and request merge to `develop`.
 
 You don't *have* to open an issue before a pull request, but it facilitates discussion and gives you a chance to receive feedback before diving into code.
 

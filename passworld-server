@@ -1,24 +1,17 @@
-#!/bin/bash
+#!/bin/bash -e
 
-COMMAND=$1
-
-case $COMMAND in
+case $1 in
   build)
     docker build --no-cache -t passworld .
     ;;
 
-  build-start)
-    passworld-server build
-    passworld-server start "${@:2}"
-    ;;
-
   init)
-    mkdir -p ~/.ssh/passworld/server
-    passworld-server new-key
+    mkdir -p .ssh/{,server}
+    ./passworld-server new-key
     ;;
 
   new-key)
-    ssh-keygen -t ed25519 -f ~/.ssh/passworld/server/id_ed25519 -N ''
+    ssh-keygen -t ed25519 -f .ssh/server/id_ed25519 -N ''
     ;;
 
   passwd)
@@ -26,8 +19,8 @@ case $COMMAND in
     ;;
 
   restart)
-    passworld-server stop "${@:2}"
-    passworld-server start "${@:2}"
+    ./passworld-server stop "${@:2}"
+    ./passworld-server start "${@:2}"
     ;;
 
   start)
@@ -39,10 +32,10 @@ case $COMMAND in
       --name passworld \
       -p 11223:22 \
       -v passworld:/home/passworld \
-      -v ~/.ssh/passworld/server:/root/.ssh:ro \
+      -v $PWD/.ssh/server:/root/.ssh:ro \
       passworld
 
-    passworld-server passwd
+    ./passworld-server passwd
     ;;
 
   stop)
@@ -56,7 +49,6 @@ case $COMMAND in
 
 Commands:
   build          Build the server image
-  build-start    Build the server image and start a container with the image
   init           Setup SSH keys
   restart        Stop and start the container
   start          Start the container

@@ -1,6 +1,6 @@
 # passworld
 
-A library and CLI toolset to encrypt/decrypt files and directories with passwords.
+A library and CLI to encrypt/decrypt files and directories with passwords.
 
 ## How does it work?
 
@@ -10,32 +10,128 @@ When you want to decrypt something you've encrypted, you hand `passworld` the ou
 
 ## Install
 
-Make sure you have the following installed:
+Make sure you have [Docker](https://docs.docker.com/install/), [Node](https://nodejs.org/en/download/), and [nvm](https://github.com/nvm-sh/nvm) installed.
 
-* [Docker](https://docs.docker.com/install/)
-* [Node](https://nodejs.org/en/download/)
-* [nvm](https://github.com/nvm-sh/nvm)
-* [OpenSSH](https://www.openssh.com/)
-
-Then `git clone` the repo and `sh /path/to/passworld/install.sh`.
-
-This command installs the library and CLI tools.
+Then `git clone` the repo, `cd` into it, `nvm i`, and `npm i [-g]`.
 
 ## Usage
 
-There are 3 major components:
+**Note:** each JS example assumes top-level `async/await` and each CLI command prompts you for a password.
 
-### [passworld](./usage/passworld.md)
+## Encrypt a file
 
-A Node library and a CLI for encrypting and decrypting files and directories.
+### JS
 
-### [passworld-server](./usage/passworld-server.md)
+```js
+await passworld.encrypt('/path/to/file', 'password', { gzip })
+```
 
-A Dockerized SSH server with the `passworld` CLI.
+### CLI
 
-### [passworld-client](./usage/passworld-client.md)
+```
+$ passworld encrypt [-g] path/to/file
+```
 
-A client that can SSH into `passworld-server` and encrypt/decrypt your files and directories.
+#### Options
+
+##### gzip `[-g]`
+Compress the file before encryption.
+
+## Encrypt a directory
+
+### JS
+
+```js
+await passworld.encrypt('/path/to/dir', 'password', { gzip, recurse })
+```
+
+### CLI
+
+```
+$ passworld encrypt [-g] [-r] path/to/dir
+```
+
+#### Options
+
+##### gzip `[-g]`
+Compress the directory contents before encryption.
+
+##### recurse `[-r]`
+Recurse through subdirectories and encrypt them.
+
+## Decrypt a file
+
+### JS
+
+```js
+await passworld.decrypt('/path/to/file', 'password', { gunzip, overwrite })
+```
+
+### CLI
+
+```
+$ passworld decrypt [-g] [-o] /path/to/file
+```
+
+#### Options
+
+##### gunzip `[-g]`
+Decompress the file after decryption.
+
+##### overwrite `[-o]`
+Overwrite the file with the decrypted contents.
+
+## Decrypt a directory
+
+### JS
+
+```js
+await passworld.decrypt('/path/to/dir', 'password', { gunzip, overwrite, recurse })
+```
+
+### CLI
+
+```
+$ passworld decrypt [-g] [-o] [-r] /path/to/dir
+```
+
+#### Options
+
+##### gunzip `[-g]`
+Decompress the directory contents after decryption.
+
+##### overwrite `[-o]`
+Overwrite the directory with the decrypted contents.
+
+##### recurse `[-r]`
+Recurse through subdirectories and decrypt them.
+
+## Encrypt random data to a file
+
+Generate pseudo-random, base64-encoded data of specified length, encrypt it, and write the result to a file.
+
+This is useful for generating passwords since the base64 alphabet *usually* satisfies password constraints.
+
+### JS
+
+```js
+await passworld.randcrypt('/path/to/file', 'password', length, { dump, gzip })
+```
+
+### CLI
+
+```
+$ passworld randcrypt [-d] [-g] /path/to/file $LENGTH
+```
+
+#### Options
+
+##### dump `[-d]`
+Dump the generated plaintext to stdout.
+
+##### gzip `[-g]`
+Compress the data before encryption.
+
 
 ## Documentation
 
@@ -57,4 +153,4 @@ If you find a bug or want a feature added, [open an issue](https://github.com/zb
 
 You don't *have* to open an issue before a pull request, but it facilitates discussion and gives you a chance to receive feedback before diving into code.
 
-Make sure linting and tests pass and coverage is 💯 before opening a pull request!
+Make sure linting and tests pass and coverage is 💯 before creating a pull request!

@@ -51,7 +51,7 @@ describe('lib/util', () => {
         util.deserialize(b64)
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Invalid description')
+        assert.strictEqual(message, 'Invalid bundle')
       }
     })
   })

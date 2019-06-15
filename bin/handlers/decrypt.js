@@ -8,7 +8,7 @@ const usage = [
   'Options:',
   '  -g    do gzip decompression after decryption',
   '  -o    overwrite the file or directory',
-  '  -r    recurse through subdirectories'
+  '  -r    decrypt the file/directory name(s)'
 ].join('\n')
 
 const validate = util.validator(usage)
@@ -22,9 +22,9 @@ module.exports = async (path, opts) => {
 
   const gunzip = opts.has('-g')
   const overwrite = opts.has('-o')
-  const recurse = opts.has('-r')
+  const rename = opts.has('-r')
 
-  const result = await passworld.decrypt(path, password, { gunzip, overwrite, recurse })
+  const result = await passworld.decrypt(path, password, { gunzip, overwrite, rename })
 
   return util.stringify(result)
 }

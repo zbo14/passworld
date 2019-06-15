@@ -7,7 +7,7 @@ const usage = [
   'Usage:  passworld <encrypt> [OPTIONS] PATH\n',
   'Options:',
   '  -g    do gzip compression before encryption',
-  '  -r    recurse through subdirectories'
+  '  -r    encrypt the file/directory name(s)'
 ].join('\n')
 
 const validate = util.validator(usage)
@@ -20,9 +20,9 @@ module.exports = async (path, opts) => {
   validate('password', password)
 
   const gzip = opts.has('-g')
-  const recursive = opts.has('-r')
+  const rename = opts.has('-r')
 
-  const result = await passworld.encrypt(path, password, { gzip, recursive })
+  const result = await passworld.encrypt(path, password, { gzip, rename })
 
   return util.stringify(result)
 }

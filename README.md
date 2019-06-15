@@ -8,6 +8,14 @@ First you tell `passworld` what you want to encrypt and you give it a password. 
 
 When you want to decrypt something you've encrypted, you hand `passworld` the output from the encryption step and give it your password. With the password and salt provided, it's able to re-derive the encryption key. With the encryption key and nonce provided, it's able to decrypt the file or directory contents.
 
+## A note on security
+
+`passworld` uses pseudo-random number generation and encryption/decryption primitives in [Node crypto](https://nodejs.org/docs/latest-v10.x/api/crypto.html) so it's susceptible to any vulnerabilites discovered in that module. We suggest using the latest LTS version of Node and updating the Node version if/when security vulnerabilities are addressed.
+
+If you discover a vulnerability in `passworld`, let us know! Refer to the [contributing guidelines](#Contributing) to see how you can help.
+
+**WARNING:** `passworld` hasn't received a formal security audit so use it at your own risk and beware of 🐉 !
+
 ## Install
 
 Make sure you have [Docker](https://docs.docker.com/install/), [Node](https://nodejs.org/en/download/), and [nvm](https://github.com/nvm-sh/nvm) installed.
@@ -23,13 +31,13 @@ Then `git clone` the repo, `cd` into it, `nvm i`, and `npm i [-g]`.
 ### JS
 
 ```js
-await passworld.encrypt('/path/to/file', 'password', { gzip })
+await passworld.encrypt('/path/to/file', 'password', { gzip, rename })
 ```
 
 ### CLI
 
 ```
-$ passworld encrypt [-g] path/to/file
+$ passworld encrypt [-g] [-r] path/to/file
 ```
 
 #### Options
@@ -37,12 +45,15 @@ $ passworld encrypt [-g] path/to/file
 ##### gzip `[-g]`
 Compress the file before encryption.
 
+##### rename `[-r]`
+Encrypt the filename.
+
 ## Encrypt a directory
 
 ### JS
 
 ```js
-await passworld.encrypt('/path/to/dir', 'password', { gzip, recurse })
+await passworld.encrypt('/path/to/dir', 'password', { gzip, rename })
 ```
 
 ### CLI
@@ -56,21 +67,21 @@ $ passworld encrypt [-g] [-r] path/to/dir
 ##### gzip `[-g]`
 Compress the directory contents before encryption.
 
-##### recurse `[-r]`
-Recurse through subdirectories and encrypt them.
+##### rename `[-r]`
+Encrypt the dirname and the names of files/subdirectories.
 
 ## Decrypt a file
 
 ### JS
 
 ```js
-await passworld.decrypt('/path/to/file', 'password', { gunzip, overwrite })
+await passworld.decrypt('/path/to/file', 'password', { gunzip, overwrite, rename })
 ```
 
 ### CLI
 
 ```
-$ passworld decrypt [-g] [-o] /path/to/file
+$ passworld decrypt [-g] [-o] [-r] /path/to/file
 ```
 
 #### Options
@@ -81,12 +92,15 @@ Decompress the file after decryption.
 ##### overwrite `[-o]`
 Overwrite the file with the decrypted contents.
 
+##### rename `[-r]`
+Decrypt the filename as well.
+
 ## Decrypt a directory
 
 ### JS
 
 ```js
-await passworld.decrypt('/path/to/dir', 'password', { gunzip, overwrite, recurse })
+await passworld.decrypt('/path/to/dir', 'password', { gunzip, overwrite, rename })
 ```
 
 ### CLI
@@ -103,8 +117,8 @@ Decompress the directory contents after decryption.
 ##### overwrite `[-o]`
 Overwrite the directory with the decrypted contents.
 
-##### recurse `[-r]`
-Recurse through subdirectories and decrypt them.
+##### rename `[-r]`
+Decrypt the dirname and the names of files/subdirectories.
 
 ## Encrypt random data to a file
 
@@ -115,13 +129,13 @@ This is useful for generating passwords since the base64 alphabet *usually* sati
 ### JS
 
 ```js
-await passworld.randcrypt('/path/to/file', 'password', length, { dump, gzip })
+await passworld.randcrypt('/path/to/file', 'password', length, { dump, gzip, rename })
 ```
 
 ### CLI
 
 ```
-$ passworld randcrypt [-d] [-g] /path/to/file $LENGTH
+$ passworld randcrypt [-d] [-g] [-r] /path/to/file $LENGTH
 ```
 
 #### Options
@@ -132,6 +146,8 @@ Dump the generated plaintext to stdout.
 ##### gzip `[-g]`
 Compress the data before encryption.
 
+##### rename `[-r]`
+Encrypt the filename as well.
 
 ## Documentation
 

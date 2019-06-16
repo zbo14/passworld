@@ -10,15 +10,15 @@ When you want to decrypt something you've encrypted, you hand `passworld` the ou
 
 ## A note on security
 
-`passworld` uses pseudo-random number generation and encryption/decryption primitives in [Node crypto](https://nodejs.org/docs/latest-v10.x/api/crypto.html) so it's susceptible to any vulnerabilites discovered in that module. We suggest using the latest LTS version of Node and updating the Node version if/when security vulnerabilities are addressed.
+`passworld` uses primitives in [Node crypto](https://nodejs.org/docs/latest-v10.x/api/crypto.html), so it's susceptible to vulnerabilites that may be discovered in that module. We suggest using the latest LTS version of Node and updating the Node version when security vulnerabilities are addressed.
 
-If you discover a vulnerability in `passworld`, let us know! Refer to the [contributing guidelines](#Contributing) to see how you can help.
+If you discover a vulnerability in `passworld`, let us know! Refer to the [contributing section](#Contributing) to see how you can help.
 
-**WARNING:** `passworld` hasn't received a formal security audit so use it at your own risk and beware of 🐉 !
+**WARNING:** `passworld` hasn't received a formal security audit so use it at your own risk and beware of 🐉🐉!
 
 ## Install
 
-Make sure you have [Docker](https://docs.docker.com/install/), [Node](https://nodejs.org/en/download/), and [nvm](https://github.com/nvm-sh/nvm) installed.
+Make sure you have [Node](https://nodejs.org/en/download/) and [nvm](https://github.com/nvm-sh/nvm) installed.
 
 Then `git clone` the repo, `cd` into it, `nvm i`, and `npm i [-g]`.
 

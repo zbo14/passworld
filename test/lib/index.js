@@ -67,7 +67,7 @@ describe('lib/index', function () {
     })
   })
 
-  describe('#decrypt()', () => {
+  describe('#decrypt({ rename: false })', () => {
     beforeEach(async () => {
       await exec([
         `mkdir ${dirname1}{,/baz}`,
@@ -134,7 +134,7 @@ describe('lib/index', function () {
     })
   })
 
-  describe('#decrypt()', () => {
+  describe('#decrypt({ rename: true })', () => {
     let dirname
 
     beforeEach(async () => {
@@ -145,6 +145,10 @@ describe('lib/index', function () {
       ].join(' && '))
 
       dirname = await passworld.encrypt(dirname1, password, { rename: true })
+    })
+
+    afterEach(async () => {
+      await exec(`rm -rf ${dirname} ${dirname1}`)
     })
 
     it('decrypts dirname and directory', async () => {
@@ -171,10 +175,6 @@ describe('lib/index', function () {
 
       result = await fs.readFile(filename2)
       assert.deepStrictEqual(result, plaintext2)
-    })
-
-    afterEach(async () => {
-      await exec(`rm -rf ${dirname} ${dirname1}`)
     })
   })
 

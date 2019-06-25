@@ -4,15 +4,19 @@ A library and CLI to encrypt/decrypt files and directories with passwords.
 
 ## How does it work?
 
-First you tell `passworld` what you want to encrypt and you give it a password. It uses [scrypt](https://en.wikipedia.org/wiki/Scrypt) to derive a key from your password. Then it encrypts your file or directory with [AES-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode), using the derived key as the encryption key. The output contains the ciphertext (encrypted file or directory), a pseudo-randomly generated scrypt salt, and a pseudo-randomly generated encryption nonce.
+First you tell `passworld` what you want to encrypt and you give it a password. It uses [scrypt](https://en.wikipedia.org/wiki/Scrypt) to derive two keys from your password. Then it encrypts your file or directory with the first key using [secretbox](http://nacl.cr.yp.to/secretbox.html) and then with the second key using [AES-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode).
 
-When you want to decrypt something you've encrypted, you hand `passworld` the output from the encryption step and give it your password. With the password and salt provided, it's able to re-derive the encryption key. With the encryption key and nonce provided, it's able to decrypt the file or directory contents.
+**Note:** in the case of a directoy, `passworld` creates a tarball, encrypts that, and `rm -r`s the directory. When you tell `passworld` to decrypt a file ending in `.tar` or `.tgz`, it should extract the decrypted archive to the original location.
+
+The output, or "bundle", contains the ciphertext (doubly encrypted file or directory), two CSPRNG scrypt salts, and two CSPRNG encryption nonces.
+
+When you want to decrypt something, you hand `passworld` the bundle and your password. It derives the second key from your password and the second salt in the bundle. Then it decrypts the ciphertext with the second key and nonce using `AES-GCM`. It performs similar steps to recover the first key and decrypts using `secretbox`. Your plaintext file or directory should now be in the filesystem.
 
 ## A note on security
 
-`passworld` uses primitives in [Node crypto](https://nodejs.org/docs/latest-v10.x/api/crypto.html), so it's susceptible to vulnerabilites that may be discovered in that module. We suggest using the latest LTS version of Node and updating the Node version when security vulnerabilities are addressed.
+I'll try to keep Node and dependency versions up to date/bump them when security vulnerabilities are addressed.
 
-If you discover a vulnerability in `passworld`, let us know! Refer to the [contributing section](#Contributing) to see how you can help.
+If you discover a vulnerability in `passworld`, let me know! Refer to the [contributing section](#Contributing) to see how you can help.
 
 **WARNING:** `passworld` hasn't received a formal security audit so use it at your own risk and beware of 🐉🐉!
 
@@ -31,123 +35,61 @@ Then `git clone` the repo, `cd` into it, `nvm i`, and `npm i [-g]`.
 ### JS
 
 ```js
-await passworld.encrypt('/path/to/file', 'password', { gzip, rename })
+await passworld.encrypt('/path/to/file', 'password')
 ```
 
 ### CLI
 
 ```
-$ passworld encrypt [-g] [-r] path/to/file
+$ passworld encrypt path/to/file
 ```
-
-#### Options
-
-##### gzip `[-g]`
-Compress the file before encryption.
-
-##### rename `[-r]`
-Encrypt the filename.
 
 ## Encrypt a directory
 
 ### JS
 
 ```js
-await passworld.encrypt('/path/to/dir', 'password', { gzip, rename })
+await passworld.encrypt('/path/to/dir', 'password', { gzip })
 ```
 
 ### CLI
 
 ```
-$ passworld encrypt [-g] [-r] path/to/dir
+$ passworld encrypt [-g] path/to/dir
 ```
 
 #### Options
 
 ##### gzip `[-g]`
-Compress the directory contents before encryption.
-
-##### rename `[-r]`
-Encrypt the dirname and the names of files/subdirectories.
+Encrypt a gzipped tar archive.
 
 ## Decrypt a file
 
 ### JS
 
 ```js
-await passworld.decrypt('/path/to/file', 'password', { gunzip, overwrite, rename })
+await passworld.decrypt('/path/to/file', 'password')
 ```
 
 ### CLI
 
 ```
-$ passworld decrypt [-g] [-o] [-r] /path/to/file
+$ passworld decrypt /path/to/file
 ```
-
-#### Options
-
-##### gunzip `[-g]`
-Decompress the file after decryption.
-
-##### overwrite `[-o]`
-Overwrite the file with the decrypted contents.
-
-##### rename `[-r]`
-Decrypt the filename as well.
 
 ## Decrypt a directory
 
 ### JS
 
 ```js
-await passworld.decrypt('/path/to/dir', 'password', { gunzip, overwrite, rename })
+await passworld.decrypt('/path/to/*.{tar|tgz}', 'password')
 ```
 
 ### CLI
 
 ```
-$ passworld decrypt [-g] [-o] [-r] /path/to/dir
+$ passworld decrypt /path/to/*.{tar|tgz}
 ```
-
-#### Options
-
-##### gunzip `[-g]`
-Decompress the directory contents after decryption.
-
-##### overwrite `[-o]`
-Overwrite the directory with the decrypted contents.
-
-##### rename `[-r]`
-Decrypt the dirname and the names of files/subdirectories.
-
-## Encrypt random data to a file
-
-Generate pseudo-random, base64-encoded data of specified length, encrypt it, and write the result to a file.
-
-This is useful for generating passwords since the base64 alphabet *usually* satisfies password constraints.
-
-### JS
-
-```js
-await passworld.randcrypt('/path/to/file', 'password', length, { dump, gzip, rename })
-```
-
-### CLI
-
-```
-$ passworld randcrypt [-d] [-g] [-r] /path/to/file $LENGTH
-```
-
-#### Options
-
-##### dump `[-d]`
-Dump the generated plaintext to stdout.
-
-##### gzip `[-g]`
-Compress the data before encryption.
-
-##### rename `[-r]`
-Encrypt the filename as well.
 
 ## Documentation
 
@@ -165,8 +107,6 @@ Encrypt the filename as well.
 
 Please do!
 
-If you find a bug or want a feature added, [open an issue](https://github.com/zbo14/passworld/issues/new). Then, if you feel so inclined, [create a pull request](https://github.com/zbo14/passworld/compare/develop...) addressing the issue. You should push your changes to a feature branch and request merge to `develop`.
-
-You don't *have* to open an issue before a pull request, but it facilitates discussion and gives you a chance to receive feedback before diving into code.
+If you find a bug, want a feature added, or just have a question, feel free to [open an issue](https://github.com/zbo14/passworld/issues/new). In addition, you're welcome to [create a pull request](https://github.com/zbo14/passworld/compare/develop...) addressing an issue. You should push your changes to a feature branch and request merge to `develop`.
 
 Make sure linting and tests pass and coverage is 💯 before creating a pull request!

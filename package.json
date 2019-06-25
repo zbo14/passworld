@@ -9,6 +9,9 @@
     "test": "nyc mocha --recursive --exit"
   },
   "author": "Zachary Balder",
+  "dependencies": {
+    "tweetnacl": "1.0.1"
+  },
   "devDependencies": {
     "eslint": "5.16.0",
     "eslint-config-standard": "12.0.0",
@@ -16,7 +19,7 @@
     "eslint-plugin-node": "8.0.1",
     "eslint-plugin-promise": "4.0.1",
     "eslint-plugin-standard": "4.0.0",
-    "jsdoc": "3.5.5",
+    "jsdoc": "3.6.2",
     "mocha": "6.1.4",
     "nyc": "13.3.0"
   },

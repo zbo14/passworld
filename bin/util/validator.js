@@ -7,12 +7,6 @@ const validators = {
     }
   },
 
-  length (length) {
-    if (!Number.isInteger(length) || length <= 0) {
-      throw new Error('Expected length to be an integer > 0')
-    }
-  },
-
   password (password) {
     if (typeof password !== 'string' || !password) {
       throw new Error('Expected password to be a non-empty string')

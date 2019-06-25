@@ -13,11 +13,6 @@ describe('lib/crypto', () => {
       const bundle = await crypto.encrypt(plaintext, password)
       assert.strictEqual(typeof bundle, 'string')
     })
-
-    it('compresses then encrypts the string', async () => {
-      const bundle = await crypto.encrypt(plaintext, password, { gzip: true })
-      assert.strictEqual(typeof bundle, 'string')
-    })
   })
 
   describe('#decrypt()', () => {
@@ -28,13 +23,6 @@ describe('lib/crypto', () => {
 
     it('decrypts the data with a password string', async () => {
       const result = await crypto.decrypt(this.bundleStr, password)
-      assert(Buffer.isBuffer(result))
-      assert(result.equals(plaintext))
-    })
-
-    it('decrypts and then decompresses the data', async () => {
-      const bundle = await crypto.encrypt(plaintext, password, { gzip: true })
-      const result = await crypto.decrypt(bundle, password, { gunzip: true })
       assert(Buffer.isBuffer(result))
       assert(result.equals(plaintext))
     })
@@ -73,8 +61,8 @@ describe('lib/crypto', () => {
       }
     })
 
-    it('fails to decrypt with wrong salt', async () => {
-      this.bundleObj.salt[4]++
+    it('fails to decrypt with wrong salt1', async () => {
+      this.bundleObj.salt1[4]++
       const bundleStr = util.serialize(this.bundleObj)
 
       try {
@@ -85,8 +73,8 @@ describe('lib/crypto', () => {
       }
     })
 
-    it('fails to decrypt with wrong nonce', async () => {
-      this.bundleObj.nonce[4]++
+    it('fails to decrypt with wrong nonce1', async () => {
+      this.bundleObj.nonce1[4]++
       const bundleStr = util.serialize(this.bundleObj)
 
       try {
@@ -97,12 +85,27 @@ describe('lib/crypto', () => {
       }
     })
 
-    it('fails to decompress after decryption', async () => {
+    it('fails to decrypt with wrong salt2', async () => {
+      this.bundleObj.salt2[4]++
+      const bundleStr = util.serialize(this.bundleObj)
+
       try {
-        await crypto.decrypt(this.bundleStr, password, { gunzip: true })
+        await crypto.decrypt(bundleStr, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Decompression failed')
+        assert.strictEqual(message, 'Decryption failed')
+      }
+    })
+
+    it('fails to decrypt with wrong nonce2', async () => {
+      this.bundleObj.nonce2[4]++
+      const bundleStr = util.serialize(this.bundleObj)
+
+      try {
+        await crypto.decrypt(bundleStr, password)
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Decryption failed')
       }
     })
   })

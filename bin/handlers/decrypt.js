@@ -13,7 +13,7 @@ module.exports = async (path, opts) => {
 
   validate('password', password)
 
-  const result = await passworld.decrypt(path, password)
+  await passworld.decrypt(path, password)
 
-  return result
+  return 'Decryption successful!'
 }

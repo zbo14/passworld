@@ -108,6 +108,13 @@ describe('lib/index', function () {
     it('decrypts directory', async () => {
       await passworld.decrypt(dirname1 + '.tar', password)
 
+      try {
+        await util.read(dirname1 + '.tar')
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Failed to read file or directory name')
+      }
+
       assert.deepStrictEqual(await util.read(dirname1), [ 'bar', 'baz' ])
       assert.deepStrictEqual(await util.read(dirname2), [ 'bam' ])
       assert.deepStrictEqual(await util.read(filename1), plaintext1)
@@ -122,6 +129,13 @@ describe('lib/index', function () {
 
     it('decrypts and decompresses directory', async () => {
       await passworld.decrypt(dirname1 + '.tgz', password)
+
+      try {
+        await util.read(dirname1 + '.tgz')
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Failed to read file or directory name')
+      }
 
       assert.deepStrictEqual(await util.read(dirname1), [ 'bar', 'baz' ])
       assert.deepStrictEqual(await util.read(dirname2), [ 'bam' ])

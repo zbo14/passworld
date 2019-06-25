@@ -19,7 +19,8 @@ module.exports = async (path, opts) => {
   validate('password', password)
 
   const gzip = opts.has('-g')
-  const result = await passworld.encrypt(path, password, { gzip })
 
-  return result
+  await passworld.encrypt(path, password, { gzip })
+
+  return 'Encryption successful!'
 }

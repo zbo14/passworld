@@ -6,7 +6,7 @@ A library and CLI to encrypt/decrypt files and directories with passwords.
 
 First you tell `passworld` what you want to encrypt and you give it a password. It uses [scrypt](https://en.wikipedia.org/wiki/Scrypt) to derive two keys from your password. Then it encrypts your file or directory with the first key using [secretbox](http://nacl.cr.yp.to/secretbox.html) and then with the second key using [AES-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode).
 
-**Note:** in the case of a directoy, `passworld` creates a tarball, encrypts that, and `rm -r`s the directory. When you tell `passworld` to decrypt a file ending in `.tar` or `.tgz`, it should extract the decrypted archive to the original location.
+**Note:** in the case of a directoy, `passworld` creates a tarball, encrypts that, and `rm -r`s the directory. When you tell `passworld` to decrypt a file ending in `.tar` or `.tgz`, it should extract the decrypted archive and remove it.
 
 The output, or "bundle", contains the ciphertext (doubly encrypted file or directory), two CSPRNG scrypt salts, and two CSPRNG encryption nonces.
 

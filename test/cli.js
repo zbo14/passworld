@@ -118,18 +118,16 @@ describe('bin', function () {
     it('encrypts and then decrypts file', async () => {
       {
         const subprocess = cp.spawn('node', [ 'bin', 'encrypt', filename1 ])
-        const result = await read(subprocess)
-        assert.strictEqual(result, 'Enter password:')
+        assert.strictEqual(await read(subprocess), 'Enter password:')
         await write(subprocess, password)
-        await read(subprocess)
+        assert.strictEqual(await read(subprocess), 'Encryption successful!')
       }
 
       {
         const subprocess = cp.spawn('node', [ 'bin', 'decrypt', filename1 ])
-        const result = await read(subprocess)
-        assert.strictEqual(result, 'Enter password:')
+        assert.strictEqual(await read(subprocess), 'Enter password:')
         await write(subprocess, password)
-        await read(subprocess)
+        assert.strictEqual(await read(subprocess), 'Decryption successful!')
       }
 
       const result = await util.readFile(filename1)
@@ -139,18 +137,16 @@ describe('bin', function () {
     it('encrypts and then decrypts directory', async () => {
       {
         const subprocess = cp.spawn('node', [ 'bin', 'encrypt', dirname1 ])
-        const result = await read(subprocess)
-        assert.strictEqual(result, 'Enter password:')
+        assert.strictEqual(await read(subprocess), 'Enter password:')
         await write(subprocess, password)
-        await read(subprocess)
+        assert.strictEqual(await read(subprocess), 'Encryption successful!')
       }
 
       {
         const subprocess = cp.spawn('node', [ 'bin', 'decrypt', dirname1 + '.tar' ])
-        const result = await read(subprocess)
-        assert.strictEqual(result, 'Enter password:')
+        assert.strictEqual(await read(subprocess), 'Enter password:')
         await write(subprocess, password)
-        await read(subprocess)
+        assert.strictEqual(await read(subprocess), 'Decryption successful!')
       }
 
       assert.deepStrictEqual(await util.readdir(dirname1), [ 'bar', 'baz' ])
@@ -162,18 +158,16 @@ describe('bin', function () {
     it('compresses and encrypts and then decrypts and decompresses directory', async () => {
       {
         const subprocess = cp.spawn('node', [ 'bin', 'encrypt', '-g', dirname1 ])
-        const result = await read(subprocess)
-        assert.strictEqual(result, 'Enter password:')
+        assert.strictEqual(await read(subprocess), 'Enter password:')
         await write(subprocess, password)
-        await read(subprocess)
+        assert.strictEqual(await read(subprocess), 'Encryption successful!')
       }
 
       {
         const subprocess = cp.spawn('node', [ 'bin', 'decrypt', dirname1 + '.tgz' ])
-        const result = await read(subprocess)
-        assert.strictEqual(result, 'Enter password:')
+        assert.strictEqual(await read(subprocess), 'Enter password:')
         await write(subprocess, password)
-        await read(subprocess)
+        assert.strictEqual(await read(subprocess), 'Decryption successful!')
       }
 
       assert.deepStrictEqual(await util.readdir(dirname1), [ 'bar', 'baz' ])

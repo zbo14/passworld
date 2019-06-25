@@ -1,35 +1,36 @@
 'use strict'
 
 const assert = require('assert')
-const { promisify } = require('util')
-const exec = promisify(require('child_process').exec)
-const readFile = promisify(require('fs').readFile)
 const passworld = require('../../lib')
+const util = require('../../lib/util')
 
-const dirname = `${__dirname}/foo`
-const filename = `${dirname}/bar`
+const dirname1 = `${__dirname}/foo`
+const dirname2 = `${dirname1}/baz`
+const filename1 = `${dirname1}/bar`
+const filename2 = `${dirname2}/bam`
+const plaintext1 = Buffer.from('secreting secrets so secretive')
+const plaintext2 = Buffer.from('levels')
 const password = 'oogly boogly'
-const plaintext = Buffer.from('secreting secrets so secretive')
-const length = 30
 
 describe('lib/index', function () {
+  beforeEach(async () => {
+    await util.exec([
+      `mkdir ${dirname1} ${dirname2}`,
+      `echo "${plaintext1.toString()}\\c" > ${filename1}`,
+      `echo "${plaintext2.toString()}\\c" > ${filename2}`
+    ].join(' && '))
+  })
+
+  afterEach(async () => {
+    await util.exec(`rm -rf ${dirname1}{,.tar,.tgz}`)
+  })
+
   describe('#encrypt()', () => {
-    beforeEach(async () => {
-      await exec([
-        `mkdir ${dirname}`,
-        `mkdir ${dirname}/baz`,
-        `echo "${plaintext}\\c" > ${filename}`,
-        `echo "levels\\c" > ${dirname}/baz/bam`
-      ].join(' && '))
-    })
-
-    afterEach(async () => {
-      await exec(`rm -rf ${dirname}`)
-    })
-
     it('encrypts file', async () => {
-      const result = await passworld.encrypt(filename, password)
-      assert.strictEqual(result, 'Encrypted file!')
+      await passworld.encrypt(filename1, password)
+      const result = await util.readFile(filename1)
+
+      assert.notDeepStrictEqual(result, plaintext1)
     })
 
     it('fails to encrypt file that doesn\'t exist', async () => {
@@ -37,42 +38,47 @@ describe('lib/index', function () {
         await passworld.encrypt(`${__dirname}/foobar`, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Couldn\'t read file, check the filename')
+        assert.strictEqual(message, 'Failed to read file or directory name')
       }
     })
 
-    it('encrypts contents of directory and its subdirectories', async () => {
-      let result = await passworld.encrypt(dirname, password, { recurse: true })
-      assert.strictEqual(result, 'Encrypted directory!')
+    it('encrypts directory', async () => {
+      await passworld.encrypt(dirname1, password)
+      const result = await util.readFile(dirname1 + '.tar', 'utf8')
+      assert(result.startsWith('ey'))
 
-      result = await readFile(filename)
-      assert(!result.equals(plaintext))
+      try {
+        await util.read(dirname1)
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Failed to read file or directory name')
+      }
+    })
 
-      result = await readFile(dirname + '/baz/bam', 'utf8')
-      assert.notStrictEqual(result, 'levels')
+    it('compresses and encrypts directory', async () => {
+      await passworld.encrypt(dirname1, password, { gzip: true })
+      const result = await util.readFile(dirname1 + '.tgz', 'utf8')
+      assert(result.startsWith('ey'))
+
+      try {
+        await util.read(dirname1)
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Failed to read file or directory name')
+      }
     })
   })
 
-  describe('#decrypt()', () => {
+  describe('#decrypt(filename)', () => {
     beforeEach(async () => {
-      await exec([
-        `mkdir ${dirname}`,
-        `mkdir ${dirname}/baz`,
-        `echo "${plaintext}\\c" > ${filename}`,
-        `echo "levels\\c" > ${dirname}/baz/bam`
-      ].join(' && '))
-
-      await passworld.encrypt(dirname, password, { recurse: true })
-    })
-
-    afterEach(async () => {
-      await exec(`rm -rf ${dirname}`)
+      await passworld.encrypt(filename1, password)
     })
 
     it('decrypts file', async () => {
-      const result = await passworld.decrypt(filename, password)
-      assert(Buffer.isBuffer(result))
-      assert.strictEqual(result.toString().trim(), plaintext.toString())
+      await passworld.decrypt(filename1, password)
+      const result = await util.readFile(filename1)
+
+      assert.deepStrictEqual(result, plaintext1)
     })
 
     it('fails to decrypt file that doesn\'t exist', async () => {
@@ -80,73 +86,61 @@ describe('lib/index', function () {
         await passworld.decrypt(`${__dirname}/foobar`, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Couldn\'t read file, check the filename')
+        assert.strictEqual(message, 'Failed to read filename')
       }
     })
 
     it('fails to decrypt file with wrong password', async () => {
       try {
-        await passworld.decrypt(filename, 'wrongpassword')
+        await passworld.decrypt(filename1, 'wrongpassword')
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
       }
     })
+  })
 
-    it('decrypts and overwrites file', async () => {
-      const result = await passworld.decrypt(filename, password, { overwrite: true })
-      assert.strictEqual(result, 'Decrypted file!')
-      const { stdout } = await exec(`cat ${filename}`)
-      assert.strictEqual(stdout.trim(), plaintext.toString())
+  describe('#decrypt(dirname)', () => {
+    beforeEach(async () => {
+      await passworld.encrypt(dirname1, password)
     })
 
-    it('decrypts contents of directory and its subdirectories', async () => {
-      const result = await passworld.decrypt(dirname, password, { recurse: true })
+    it('decrypts directory', async () => {
+      await passworld.decrypt(dirname1 + '.tar', password)
 
-      assert.deepStrictEqual(result, {
-        [ `${__dirname}/foo/bar` ]: plaintext,
-        [ `${__dirname}/foo/baz/bam` ]: Buffer.from('levels')
-      })
-    })
+      try {
+        await util.read(dirname1 + '.tar')
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Failed to read file or directory name')
+      }
 
-    it('decrypts contents of directory and its subdirectories and overwrites them', async () => {
-      let result = await passworld.decrypt(dirname, password, { overwrite: true, recurse: true })
-      assert.strictEqual(result, 'Decrypted directory!')
-
-      result = await readFile(filename)
-      assert(result.equals(plaintext))
-
-      result = await readFile(dirname + '/baz/bam', 'utf8')
-      assert.strictEqual(result, 'levels')
+      assert.deepStrictEqual(await util.read(dirname1), [ 'bar', 'baz' ])
+      assert.deepStrictEqual(await util.read(dirname2), [ 'bam' ])
+      assert.deepStrictEqual(await util.read(filename1), plaintext1)
+      assert.deepStrictEqual(await util.read(filename2), plaintext2)
     })
   })
 
-  describe('#randcrypt()', () => {
+  describe('#decrypt(dirname, { gzip })', () => {
     beforeEach(async () => {
-      await exec(`mkdir ${dirname}`)
+      await passworld.encrypt(dirname1, password, { gzip: true })
     })
 
-    afterEach(async () => {
-      await exec(`rm -rf ${dirname}`)
-    })
+    it('decrypts and decompresses directory', async () => {
+      await passworld.decrypt(dirname1 + '.tgz', password)
 
-    it('encrypts random data', async () => {
-      const result = await passworld.randcrypt(filename, password, length)
-      assert.strictEqual(result, 'Encrypted random data!')
-    })
-
-    it('encrypts random data and dumps plaintext', async () => {
-      const result = await passworld.randcrypt(filename, password, length, { charLength: true, dump: true })
-      assert.strictEqual(result.length, length)
-    })
-
-    it('fails to encrypt random data when write fails', async () => {
       try {
-        await passworld.randcrypt(dirname, password, length)
+        await util.read(dirname1 + '.tgz')
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Couldn\'t write file, check the filename')
+        assert.strictEqual(message, 'Failed to read file or directory name')
       }
+
+      assert.deepStrictEqual(await util.read(dirname1), [ 'bar', 'baz' ])
+      assert.deepStrictEqual(await util.read(dirname2), [ 'bam' ])
+      assert.deepStrictEqual(await util.read(filename1), plaintext1)
+      assert.deepStrictEqual(await util.read(filename2), plaintext2)
     })
   })
 })

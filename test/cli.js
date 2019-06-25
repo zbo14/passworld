@@ -4,11 +4,11 @@ const assert = require('assert')
 const { promisify } = require('util')
 const cp = require('child_process')
 const exec = promisify(cp.exec)
-const passworld = require('../lib')
+const util = require('../lib/util')
 
-const write = (process, password) => {
+const write = (process, data) => {
   return new Promise(resolve => {
-    process.stdin.write(password, resolve)
+    process.stdin.write(data + '\n', resolve)
   })
 }
 
@@ -26,14 +26,28 @@ const read = process => {
   })
 }
 
-const dirname = `${__dirname}/foo`
-const filename = `${dirname}/bar`
+const dirname1 = `${__dirname}/foo`
+const dirname2 = `${dirname1}/baz`
+const filename1 = `${dirname1}/bar`
+const filename2 = `${dirname2}/bam`
+const plaintext1 = Buffer.from('secreting secrets so secretive')
+const plaintext2 = Buffer.from('levels')
 const password = 'oogly boogly'
-const plaintext = Buffer.from('secreting secrets so secretive')
-const length = 30
 
-describe('CLI', function () {
+describe('bin', function () {
   this.timeout(5e3)
+
+  beforeEach(async () => {
+    await exec([
+      `mkdir ${dirname1} ${dirname2}`,
+      `echo "${plaintext1}\\c" > ${filename1}`,
+      `echo "${plaintext2}\\c" > ${filename2}`
+    ].join(' && '))
+  })
+
+  afterEach(async () => {
+    await exec(`rm -rf ${dirname1}{,.tar,.tgz}`)
+  })
 
   it('handles unrecognized command', async () => {
     const subprocess = cp.spawn('node', [ 'bin', 'ecrypt' ])
@@ -42,52 +56,11 @@ describe('CLI', function () {
       'Usage:  passworld <command> [OPTIONS] ARGS\n',
       'Commands:',
       '  encrypt      Encrypt a file or directory',
-      '  decrypt      Decrypt a file or directory',
-      '  randcrypt    Encrypt random data to a file'
+      '  decrypt      Decrypt a file or directory'
     ].join('\n'))
   })
 
   describe('#encrypt()', () => {
-    beforeEach(async () => {
-      await exec([
-        `mkdir ${dirname}`,
-        `mkdir ${dirname}/baz`,
-        `echo "${plaintext}\\c" > ${filename}`,
-        `echo "levels\\c" > ${dirname}/baz/bam`
-      ].join(' && '))
-    })
-
-    afterEach(async () => {
-      await exec(`rm -rf ${dirname}`)
-    })
-
-    it('encrypts file', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'encrypt', filename ])
-      let result = await read(subprocess)
-      assert.strictEqual(result, 'Enter password:')
-      await write(subprocess, password + '\n')
-      result = await read(subprocess)
-      assert.strictEqual(result, 'Encrypted file!')
-    })
-
-    it('encrypts directory', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'encrypt', dirname ])
-      let result = await read(subprocess)
-      assert.strictEqual(result, 'Enter password:')
-      await write(subprocess, password + '\n')
-      result = await read(subprocess)
-      assert.strictEqual(result, 'Encrypted directory!')
-    })
-
-    it('encrypts directory and subdirectories', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'encrypt', '-r', dirname ])
-      let result = await read(subprocess)
-      assert.strictEqual(result, 'Enter password:')
-      await write(subprocess, password + '\n')
-      result = await read(subprocess)
-      assert.strictEqual(result, 'Encrypted directory!')
-    })
-
     it('errors when no path is passed', async () => {
       const subprocess = cp.spawn('node', [ 'bin', 'encrypt' ])
       const result = await read(subprocess)
@@ -96,13 +69,12 @@ describe('CLI', function () {
         'Expected path to be a non-empty string\n',
         'Usage:  passworld <encrypt> [OPTIONS] PATH\n',
         'Options:',
-        '  -g    do gzip compression before encryption',
-        '  -r    recurse through subdirectories'
+        '  -g    encrypt a gzipped tar archive'
       ].join('\n'))
     })
 
     it('errors when no password is passed', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'encrypt', filename ])
+      const subprocess = cp.spawn('node', [ 'bin', 'encrypt', filename1 ])
       let result = await read(subprocess)
       assert.strictEqual(result, 'Enter password:')
       await write(subprocess, '\n')
@@ -112,74 +84,24 @@ describe('CLI', function () {
         'Expected password to be a non-empty string\n',
         'Usage:  passworld <encrypt> [OPTIONS] PATH\n',
         'Options:',
-        '  -g    do gzip compression before encryption',
-        '  -r    recurse through subdirectories'
+        '  -g    encrypt a gzipped tar archive'
       ].join('\n'))
     })
   })
 
   describe('#decrypt()', () => {
-    beforeEach(async () => {
-      await exec([
-        `mkdir ${dirname}`,
-        `mkdir ${dirname}/baz`,
-        `echo "${plaintext}\\c" > ${filename}`,
-        `echo "levels\\c" > ${dirname}/baz/bam`
-      ].join(' && '))
-
-      await passworld.encrypt(dirname, password, { recurse: true })
-    })
-
-    afterEach(async () => {
-      await exec(`rm -rf ${dirname}`)
-    })
-
-    it('decrypts file', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'decrypt', filename ])
-      let result = await read(subprocess)
-      assert.strictEqual(result, 'Enter password:')
-      await write(subprocess, password + '\n')
-      result = await read(subprocess)
-      assert.strictEqual(result, plaintext.toString())
-    })
-
-    it('decrypts directory', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'decrypt', dirname ])
-      let result = await read(subprocess)
-      assert.strictEqual(result, 'Enter password:')
-      await write(subprocess, password + '\n')
-      result = await read(subprocess)
-      assert.strictEqual(result, `${__dirname}/foo/bar: secreting secrets so secretive`)
-    })
-
-    it('decrypts directory and its subdirectories', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'decrypt', '-r', dirname ])
-      let result = await read(subprocess)
-      assert.strictEqual(result, 'Enter password:')
-      await write(subprocess, password + '\n')
-      result = await read(subprocess)
-      assert.strictEqual(result,
-        `${__dirname}/foo/bar: secreting secrets so secretive\n` +
-        `${__dirname}/foo/baz/bam: levels`
-      )
-    })
-
     it('errors when no path is passed', async () => {
       const subprocess = cp.spawn('node', [ 'bin', 'decrypt' ])
       const result = await read(subprocess)
 
       assert.strictEqual(result, [
         'Expected path to be a non-empty string\n',
-        'Usage:  passworld <decrypt> [OPTIONS] PATH\n',
-        'Options:',
-        '  -g    do gzip decompression after decryption',
-        '  -o    overwrite the file or directory',
-        '  -r    recurse through subdirectories'
+        'Usage:  passworld <decrypt> PATH'
       ].join('\n'))
     })
 
     it('errors when no password is passed', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'decrypt', filename ])
+      const subprocess = cp.spawn('node', [ 'bin', 'decrypt', filename1 ])
       let result = await read(subprocess)
       assert.strictEqual(result, 'Enter password:')
       await write(subprocess, '\n')
@@ -187,53 +109,71 @@ describe('CLI', function () {
 
       assert.strictEqual(result, [
         'Expected password to be a non-empty string\n',
-        'Usage:  passworld <decrypt> [OPTIONS] PATH\n',
-        'Options:',
-        '  -g    do gzip decompression after decryption',
-        '  -o    overwrite the file or directory',
-        '  -r    recurse through subdirectories'
+        'Usage:  passworld <decrypt> PATH'
       ].join('\n'))
     })
   })
 
-  describe('#randcrypt()', () => {
-    beforeEach(async () => {
-      await exec(`mkdir ${dirname}`)
+  describe('#encrypt() and then #decrypt()', () => {
+    it('encrypts and then decrypts file', async () => {
+      {
+        const subprocess = cp.spawn('node', [ 'bin', 'encrypt', filename1 ])
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        await write(subprocess, password)
+        assert.strictEqual(await read(subprocess), 'Encryption successful!')
+      }
+
+      {
+        const subprocess = cp.spawn('node', [ 'bin', 'decrypt', filename1 ])
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        await write(subprocess, password)
+        assert.strictEqual(await read(subprocess), 'Decryption successful!')
+      }
+
+      const result = await util.readFile(filename1)
+      assert.deepStrictEqual(result, plaintext1)
     })
 
-    afterEach(async () => {
-      await exec(`rm -rf ${dirname}`)
+    it('encrypts and then decrypts directory', async () => {
+      {
+        const subprocess = cp.spawn('node', [ 'bin', 'encrypt', dirname1 ])
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        await write(subprocess, password)
+        assert.strictEqual(await read(subprocess), 'Encryption successful!')
+      }
+
+      {
+        const subprocess = cp.spawn('node', [ 'bin', 'decrypt', dirname1 + '.tar' ])
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        await write(subprocess, password)
+        assert.strictEqual(await read(subprocess), 'Decryption successful!')
+      }
+
+      assert.deepStrictEqual(await util.readdir(dirname1), [ 'bar', 'baz' ])
+      assert.deepStrictEqual(await util.readdir(dirname2), [ 'bam' ])
+      assert.deepStrictEqual(await util.readFile(filename1), plaintext1)
+      assert.deepStrictEqual(await util.readFile(filename2), plaintext2)
     })
 
-    it('encrypts random data', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'randcrypt', filename, length ])
-      let result = await read(subprocess)
-      assert.strictEqual(result, 'Enter password:')
-      await write(subprocess, password + '\n')
-      result = await read(subprocess)
-      assert.strictEqual(result, 'Encrypted random data!')
-    })
+    it('compresses and encrypts and then decrypts and decompresses directory', async () => {
+      {
+        const subprocess = cp.spawn('node', [ 'bin', 'encrypt', '-g', dirname1 ])
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        await write(subprocess, password)
+        assert.strictEqual(await read(subprocess), 'Encryption successful!')
+      }
 
-    it('encrypts random data and dumps plaintext', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'randcrypt', '-d', filename, length ])
-      let result = await read(subprocess)
-      assert.strictEqual(result, 'Enter password:')
-      await write(subprocess, password + '\n')
-      result = await read(subprocess)
-      assert.strictEqual(result.length, 30)
-    })
+      {
+        const subprocess = cp.spawn('node', [ 'bin', 'decrypt', dirname1 + '.tgz' ])
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        await write(subprocess, password)
+        assert.strictEqual(await read(subprocess), 'Decryption successful!')
+      }
 
-    it('errors when bad length is passed', async () => {
-      const subprocess = cp.spawn('node', [ 'bin', 'randcrypt', filename, '30.3' ])
-      const result = await read(subprocess)
-
-      assert.strictEqual(result, [
-        'Expected length to be an integer > 0\n',
-        'Usage:  passworld <randcrypt> [OPTIONS] PATH LENGTH\n',
-        'Options:',
-        '  -d    dump the generated plaintext to stdout',
-        '  -g    do gzip compression before encryption'
-      ].join('\n'))
+      assert.deepStrictEqual(await util.readdir(dirname1), [ 'bar', 'baz' ])
+      assert.deepStrictEqual(await util.readdir(dirname2), [ 'bam' ])
+      assert.deepStrictEqual(await util.readFile(filename1), plaintext1)
+      assert.deepStrictEqual(await util.readFile(filename2), plaintext2)
     })
   })
 })

@@ -10,43 +10,31 @@ const plaintext = Buffer.from('foobar')
 describe('lib/crypto', () => {
   describe('#encrypt()', () => {
     it('encrypts a string with a password', async () => {
-      const description = await crypto.encrypt(plaintext, password)
-      assert.strictEqual(typeof description, 'string')
-    })
-
-    it('compresses then encrypts the string', async () => {
-      const description = await crypto.encrypt(plaintext, password, { gzip: true })
-      assert.strictEqual(typeof description, 'string')
+      const bundle = await crypto.encrypt(plaintext, password)
+      assert.strictEqual(typeof bundle, 'string')
     })
   })
 
   describe('#decrypt()', () => {
     beforeEach(async () => {
-      this.descStr = await crypto.encrypt(plaintext, password)
-      this.descObj = util.deserialize(this.descStr)
+      this.bundleStr = await crypto.encrypt(plaintext, password)
+      this.bundleObj = util.deserialize(this.bundleStr)
     })
 
     it('decrypts the data with a password string', async () => {
-      const result = await crypto.decrypt(this.descStr, password)
+      const result = await crypto.decrypt(this.bundleStr, password)
       assert(Buffer.isBuffer(result))
       assert(result.equals(plaintext))
     })
 
-    it('decrypts and then decompresses the data', async () => {
-      const description = await crypto.encrypt(plaintext, password, { gzip: true })
-      const result = await crypto.decrypt(description, password, { gunzip: true })
-      assert(Buffer.isBuffer(result))
-      assert(result.equals(plaintext))
-    })
-
-    it('fails to decrypt invalid description', async () => {
-      const newDescription = Buffer.from(this.descStr, 'base64').toString('hex')
+    it('fails to decrypt invalid bundle', async () => {
+      const newbundle = Buffer.from(this.bundleStr, 'base64').toString('hex')
 
       try {
-        await crypto.decrypt(newDescription, password)
+        await crypto.decrypt(newbundle, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Invalid description')
+        assert.strictEqual(message, 'Invalid bundle')
       }
     })
 
@@ -54,7 +42,7 @@ describe('lib/crypto', () => {
       const password = Buffer.from('bar')
 
       try {
-        await crypto.decrypt(this.descStr, password)
+        await crypto.decrypt(this.bundleStr, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
@@ -62,47 +50,62 @@ describe('lib/crypto', () => {
     })
 
     it('fails to decrypt with tampered ciphertext', async () => {
-      this.descObj.ciphertext[3]--
-      const descStr = util.serialize(this.descObj)
+      this.bundleObj.ciphertext[3]--
+      const bundleStr = util.serialize(this.bundleObj)
 
       try {
-        await crypto.decrypt(descStr, password)
+        await crypto.decrypt(bundleStr, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
       }
     })
 
-    it('fails to decrypt with wrong salt', async () => {
-      this.descObj.salt[4]++
-      const descStr = util.serialize(this.descObj)
+    it('fails to decrypt with wrong salt1', async () => {
+      this.bundleObj.salt1[4]++
+      const bundleStr = util.serialize(this.bundleObj)
 
       try {
-        await crypto.decrypt(descStr, password)
+        await crypto.decrypt(bundleStr, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
       }
     })
 
-    it('fails to decrypt with wrong nonce', async () => {
-      this.descObj.nonce[4]++
-      const descStr = util.serialize(this.descObj)
+    it('fails to decrypt with wrong nonce1', async () => {
+      this.bundleObj.nonce1[4]++
+      const bundleStr = util.serialize(this.bundleObj)
 
       try {
-        await crypto.decrypt(descStr, password)
+        await crypto.decrypt(bundleStr, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
         assert.strictEqual(message, 'Decryption failed')
       }
     })
 
-    it('fails to decompress after decryption', async () => {
+    it('fails to decrypt with wrong salt2', async () => {
+      this.bundleObj.salt2[4]++
+      const bundleStr = util.serialize(this.bundleObj)
+
       try {
-        await crypto.decrypt(this.descStr, password, { gunzip: true })
+        await crypto.decrypt(bundleStr, password)
         assert.fail('Should throw error')
       } catch ({ message }) {
-        assert.strictEqual(message, 'Decompression failed')
+        assert.strictEqual(message, 'Decryption failed')
+      }
+    })
+
+    it('fails to decrypt with wrong nonce2', async () => {
+      this.bundleObj.nonce2[4]++
+      const bundleStr = util.serialize(this.bundleObj)
+
+      try {
+        await crypto.decrypt(bundleStr, password)
+        assert.fail('Should throw error')
+      } catch ({ message }) {
+        assert.strictEqual(message, 'Decryption failed')
       }
     })
   })

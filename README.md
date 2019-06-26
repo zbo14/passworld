@@ -4,13 +4,11 @@ A library and CLI to encrypt/decrypt files and directories with passwords.
 
 ## How does it work?
 
-First you tell `passworld` what you want to encrypt and you give it a password. It uses [scrypt](https://en.wikipedia.org/wiki/Scrypt) to derive two keys from your password. Then it encrypts your file or directory with the first key using [secretbox](http://nacl.cr.yp.to/secretbox.html) and then with the second key using [AES-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode).
-
-**Note:** in the case of a directoy, `passworld` creates a tarball, encrypts that, and `rm -r`s the directory. When you tell `passworld` to decrypt a file ending in `.tar` or `.tgz`, it should extract the decrypted archive and remove it.
+First you tell `passworld` what you want to encrypt and you give it a password. It uses [scrypt](https://en.wikipedia.org/wiki/Scrypt) to derive two keys from your password. Then it encrypts your file or directory with the first key using [secretbox](http://nacl.cr.yp.to/secretbox.html) and then with the second key using [AES-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode). If the encryption target is a directory, `passworld` creates a tarball, encrypts that, and `rm -r`s the directory.
 
 The output, or "bundle", contains the ciphertext (doubly encrypted file or directory), two CSPRNG scrypt salts, and two CSPRNG encryption nonces.
 
-When you want to decrypt something, you hand `passworld` the bundle and your password. It derives the second key from your password and the second salt in the bundle. Then it decrypts the ciphertext with the second key and nonce using `AES-GCM`. It performs similar steps to recover the first key and decrypts using `secretbox`. Your plaintext file or directory should now be in the filesystem.
+When you want to decrypt something, you hand `passworld` the bundle and your password. It derives the second key from your password and the second salt in the bundle. Then it decrypts the ciphertext with the second key and the second nonce im the bundle using `AES-GCM`. It performs similar steps to recover the first key and subsequently decrypts using `secretbox`. When you tell `passworld` to decrypt a file ending in `.tar` or `.tgz`, it should extract the decrypted archive and remove it. Your plaintext file or directory should now be in the filesystem.
 
 ## A note on security
 

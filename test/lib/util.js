@@ -16,4 +16,11 @@ describe('lib/util', () => {
       }
     })
   })
+
+  describe('#rmTrailingSlash()', () => {
+    it('removes trailing slash from path', () => {
+      const result = util.rmTrailingSlash('/foo/bar/')
+      assert.strictEqual(result, '/foo/bar')
+    })
+  })
 })

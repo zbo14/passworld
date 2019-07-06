@@ -28,6 +28,8 @@ Then `git clone` the repo, `cd` into it, `nvm i`, and `npm i [-g]`.
 
 ## Encrypt a file
 
+Encrypt a file and overwrite it with the encrypted contents.
+
 ### JS
 
 ```js
@@ -47,6 +49,8 @@ Compress before encryption.
 
 ## Encrypt a directory
 
+Create a tar archive of a directory, encrypt it, write the encrypted contents to `/path/to/dir.{tar|tgz}`, and remove the original directory.
+
 ### JS
 
 ```js
@@ -64,7 +68,11 @@ $ passworld encrypt [-g] path/to/dir
 ##### gzip `[-g]`
 Compress before encryption.
 
+**Note:** the encrypted tar archive will have extension `.tgz` instead of `.tar`.
+
 ## Decrypt a file
+
+Decrypt a file and overwrite it with the plaintext contents.
 
 ### JS
 
@@ -80,16 +88,18 @@ $ passworld decrypt /path/to/file
 
 ## Decrypt a directory
 
+Decrypt an encrypted tar archive, extract the original directory, and remove the archive.
+
 ### JS
 
 ```js
-await passworld.decrypt('/path/to/*.{tar|tgz}', 'password')
+await passworld.decrypt('/path/to/dir.{tar|tgz}', 'password')
 ```
 
 ### CLI
 
 ```
-$ passworld decrypt /path/to/*.{tar|tgz}
+$ passworld decrypt /path/to/dir.{tar|tgz}
 ```
 
 ## Documentation

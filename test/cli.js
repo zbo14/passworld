@@ -1,6 +1,7 @@
 'use strict'
 
 const assert = require('assert')
+const lolex = require('lolex')
 const { promisify } = require('util')
 const cp = require('child_process')
 const exec = promisify(cp.exec)
@@ -39,6 +40,8 @@ describe('bin', function () {
   this.timeout(5e3)
 
   beforeEach(async () => {
+    this.clock = lolex.install()
+
     await exec([
       `mkdir ${dirname1} ${dirname2}`,
       `echo "${plaintext1}\\c" > ${filename1}`,
@@ -47,6 +50,7 @@ describe('bin', function () {
   })
 
   afterEach(async () => {
+    this.clock.uninstall()
     await exec(`rm -rf ${dirname1}{,.tar,.tgz}`)
   })
 
@@ -215,10 +219,31 @@ describe('bin', function () {
       }
 
       {
-        await write(subprocess, password)
+        await write(subprocess, 'new-password')
         assert.strictEqual(await read(subprocess), 'Recryption successful!')
         const result = await util.readFile(filename1)
         assert.notDeepStrictEqual(result, plaintext1)
+        await passworld.decrypt(filename1, 'new-password')
+      }
+    })
+
+    it('decrypts and then encrypts file with same password', async () => {
+      const subprocess = cp.spawn('node', [ 'bin', 'recrypt', filename1 ])
+
+      {
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        await write(subprocess, password)
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        const result = await util.readFile(filename1)
+        assert.deepStrictEqual(result, plaintext1)
+      }
+
+      {
+        await write(subprocess, '')
+        assert.strictEqual(await read(subprocess), 'Recryption successful!')
+        const result = await util.readFile(filename1)
+        assert.notDeepStrictEqual(result, plaintext1)
+        await passworld.decrypt(filename1, password)
       }
     })
   })

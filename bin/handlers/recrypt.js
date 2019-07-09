@@ -20,7 +20,7 @@ module.exports = async (path, opts) => {
 
   await passworld.decrypt(path, password)
 
-  password = await util.getPassword()
+  password = await util.getPassword() || password
 
   validate('password', password)
 

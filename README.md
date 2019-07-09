@@ -102,6 +102,25 @@ await passworld.decrypt('/path/to/dir.{tar|tgz}', 'password')
 $ passworld decrypt /path/to/dir.{tar|tgz}
 ```
 
+## "Recrypt" a file or directory
+
+Decrypt a file or directory and encrypt it again. 
+
+This command prompts you for two passwords: the first for decryption and the second for encryption.
+
+If you enter an empty password the second time, `passworld` will use the same password to encrypt.
+
+### CLI
+
+```
+$ passworld recrypt [-g] /path/to/*
+```
+
+#### Options
+
+##### gzip `[-g]`
+Compress before encryption.
+
 ## Documentation
 
 `npm run doc`

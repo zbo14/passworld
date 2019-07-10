@@ -2,5 +2,6 @@
 
 module.exports = {
   decrypt: require('./decrypt'),
-  encrypt: require('./encrypt')
+  encrypt: require('./encrypt'),
+  recrypt: require('./recrypt')
 }

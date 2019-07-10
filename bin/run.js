@@ -6,7 +6,8 @@ const usage = [
   'Usage:  passworld <command> [OPTIONS] ARGS\n',
   'Commands:',
   '  encrypt      Encrypt a file or directory',
-  '  decrypt      Decrypt a file or directory'
+  '  decrypt      Decrypt a file or directory',
+  '  recrypt      Decrypt and then encrypt a file or directory'
 ].join('\n')
 
 module.exports = async () => {
@@ -25,6 +26,7 @@ module.exports = async () => {
     switch (command) {
       case 'encrypt':
       case 'decrypt':
+      case 'recrypt':
         const message = await handlers[ command ](...args, opts)
 
         return console.log(message)

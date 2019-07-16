@@ -27,17 +27,19 @@ describe('lib/index', function () {
 
   describe('#encrypt()', () => {
     it('encrypts file', async () => {
-      await passworld.encrypt(filename1, password)
-      const result = await util.readFile(filename1)
+      const name = await passworld.encrypt(filename1, password)
+      const data = await util.readFile(name)
 
-      assert.notDeepStrictEqual(result, plaintext1)
+      assert.strictEqual(name, filename1)
+      assert.notDeepStrictEqual(data, plaintext1)
     })
 
     it('compresses and encrypts file', async () => {
-      await passworld.encrypt(filename1, password, { gzip: true })
-      const result = await util.readFile(filename1 + '.gz')
+      const name = await passworld.encrypt(filename1, password, { gzip: true })
+      const data = await util.readFile(name)
 
-      assert.notDeepStrictEqual(result, plaintext1)
+      assert.strictEqual(name, filename1 + '.gz')
+      assert.notDeepStrictEqual(data, plaintext1)
 
       try {
         await util.read(filename1)
@@ -57,9 +59,11 @@ describe('lib/index', function () {
     })
 
     it('encrypts directory', async () => {
-      await passworld.encrypt(dirname1, password)
-      const result = await util.readFile(dirname1 + '.tar', 'utf8')
-      assert(result.startsWith('ey'))
+      const name = await passworld.encrypt(dirname1, password)
+      const data = await util.readFile(name, 'utf8')
+
+      assert.strictEqual(name, dirname1 + '.tar')
+      assert(data.startsWith('ey'))
 
       try {
         await util.read(dirname1)
@@ -70,9 +74,11 @@ describe('lib/index', function () {
     })
 
     it('compresses and encrypts directory', async () => {
-      await passworld.encrypt(dirname1, password, { gzip: true })
-      const result = await util.readFile(dirname1 + '.tgz', 'utf8')
-      assert(result.startsWith('ey'))
+      const name = await passworld.encrypt(dirname1, password, { gzip: true })
+      const data = await util.readFile(name, 'utf8')
+
+      assert.strictEqual(name, dirname1 + '.tgz')
+      assert(data.startsWith('ey'))
 
       try {
         await util.read(dirname1)
@@ -86,10 +92,11 @@ describe('lib/index', function () {
   describe('#decrypt()', () => {
     it('decrypts file', async () => {
       await passworld.encrypt(filename1, password)
-      await passworld.decrypt(filename1, password)
-      const result = await util.readFile(filename1)
+      const name = await passworld.decrypt(filename1, password)
+      const data = await util.readFile(filename1)
 
-      assert.deepStrictEqual(result, plaintext1)
+      assert.strictEqual(name, filename1)
+      assert.deepStrictEqual(data, plaintext1)
     })
 
     it('fails to decrypt file that doesn\'t exist', async () => {
@@ -116,15 +123,16 @@ describe('lib/index', function () {
 
     it('decrypts and decompresses file', async () => {
       await passworld.encrypt(filename1, password, { gzip: true })
-      await passworld.decrypt(filename1 + '.gz', password)
-      const result = await util.readFile(filename1)
+      const name = await passworld.decrypt(filename1 + '.gz', password)
+      const data = await util.readFile(filename1)
 
-      assert.deepStrictEqual(result, plaintext1)
+      assert.strictEqual(name, filename1)
+      assert.deepStrictEqual(data, plaintext1)
     })
 
     it('decrypts directory', async () => {
       await passworld.encrypt(dirname1, password)
-      await passworld.decrypt(dirname1 + '.tar', password)
+      const name = await passworld.decrypt(dirname1 + '.tar', password)
 
       try {
         await util.read(dirname1 + '.tar')
@@ -133,6 +141,7 @@ describe('lib/index', function () {
         assert.strictEqual(message, 'Failed to read file or directory name')
       }
 
+      assert.strictEqual(name, dirname1)
       assert.deepStrictEqual(await util.read(dirname1), [ 'bar', 'baz' ])
       assert.deepStrictEqual(await util.read(dirname2), [ 'bam' ])
       assert.deepStrictEqual(await util.read(filename1), plaintext1)
@@ -141,7 +150,7 @@ describe('lib/index', function () {
 
     it('decrypts and decompresses directory', async () => {
       await passworld.encrypt(dirname1, password, { gzip: true })
-      await passworld.decrypt(dirname1 + '.tgz', password)
+      const name = await passworld.decrypt(dirname1 + '.tgz', password)
 
       try {
         await util.read(dirname1 + '.tgz')
@@ -150,6 +159,7 @@ describe('lib/index', function () {
         assert.strictEqual(message, 'Failed to read file or directory name')
       }
 
+      assert.strictEqual(name, dirname1)
       assert.deepStrictEqual(await util.read(dirname1), [ 'bar', 'baz' ])
       assert.deepStrictEqual(await util.read(dirname2), [ 'bam' ])
       assert.deepStrictEqual(await util.read(filename1), plaintext1)

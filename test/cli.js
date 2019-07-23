@@ -1,9 +1,11 @@
 'use strict'
 
 const assert = require('assert')
+const lolex = require('lolex')
 const { promisify } = require('util')
 const cp = require('child_process')
 const exec = promisify(cp.exec)
+const passworld = require('../lib')
 const util = require('../lib/util')
 
 const write = (process, data) => {
@@ -38,6 +40,8 @@ describe('bin', function () {
   this.timeout(5e3)
 
   beforeEach(async () => {
+    this.clock = lolex.install()
+
     await exec([
       `mkdir ${dirname1} ${dirname2}`,
       `echo "${plaintext1}\\c" > ${filename1}`,
@@ -46,6 +50,7 @@ describe('bin', function () {
   })
 
   afterEach(async () => {
+    this.clock.uninstall()
     await exec(`rm -rf ${dirname1}{,.tar,.tgz}`)
   })
 
@@ -56,7 +61,8 @@ describe('bin', function () {
       'Usage:  passworld <command> [OPTIONS] ARGS\n',
       'Commands:',
       '  encrypt      Encrypt a file or directory',
-      '  decrypt      Decrypt a file or directory'
+      '  decrypt      Decrypt a file or directory',
+      '  recrypt      Decrypt and then encrypt a file or directory'
     ].join('\n'))
   })
 
@@ -193,6 +199,52 @@ describe('bin', function () {
       assert.deepStrictEqual(await util.readdir(dirname2), [ 'bam' ])
       assert.deepStrictEqual(await util.readFile(filename1), plaintext1)
       assert.deepStrictEqual(await util.readFile(filename2), plaintext2)
+    })
+  })
+
+  describe('#recrypt()', () => {
+    beforeEach(async () => {
+      await passworld.encrypt(filename1, password)
+    })
+
+    it('decrypts and then encrypts file', async () => {
+      const subprocess = cp.spawn('node', [ 'bin', 'recrypt', filename1 ])
+
+      {
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        await write(subprocess, password)
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        const result = await util.readFile(filename1)
+        assert.deepStrictEqual(result, plaintext1)
+      }
+
+      {
+        await write(subprocess, 'new-password')
+        assert.strictEqual(await read(subprocess), 'Recryption successful!')
+        const result = await util.readFile(filename1)
+        assert.notDeepStrictEqual(result, plaintext1)
+        await passworld.decrypt(filename1, 'new-password')
+      }
+    })
+
+    it('decrypts and then encrypts file with same password', async () => {
+      const subprocess = cp.spawn('node', [ 'bin', 'recrypt', filename1 ])
+
+      {
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        await write(subprocess, password)
+        assert.strictEqual(await read(subprocess), 'Enter password:')
+        const result = await util.readFile(filename1)
+        assert.deepStrictEqual(result, plaintext1)
+      }
+
+      {
+        await write(subprocess, '')
+        assert.strictEqual(await read(subprocess), 'Recryption successful!')
+        const result = await util.readFile(filename1)
+        assert.notDeepStrictEqual(result, plaintext1)
+        await passworld.decrypt(filename1, password)
+      }
     })
   })
 })

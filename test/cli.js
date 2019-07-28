@@ -1,7 +1,6 @@
 'use strict'
 
 const assert = require('assert')
-const lolex = require('lolex')
 const { promisify } = require('util')
 const cp = require('child_process')
 const exec = promisify(cp.exec)
@@ -40,8 +39,6 @@ describe('bin', function () {
   this.timeout(5e3)
 
   beforeEach(async () => {
-    this.clock = lolex.install()
-
     await exec([
       `mkdir ${dirname1} ${dirname2}`,
       `echo "${plaintext1}\\c" > ${filename1}`,
@@ -50,7 +47,6 @@ describe('bin', function () {
   })
 
   afterEach(async () => {
-    this.clock.uninstall()
     await exec(`rm -rf ${dirname1}{,.tar,.tgz}`)
   })
 
@@ -75,7 +71,7 @@ describe('bin', function () {
         'Expected path to be a non-empty string\n',
         'Usage:  passworld <encrypt> [OPTIONS] PATH\n',
         'Options:',
-        '  -g    compress before encryption'
+        '  -z    compress before encryption'
       ].join('\n'))
     })
 
@@ -90,7 +86,7 @@ describe('bin', function () {
         'Expected password to be a non-empty string\n',
         'Usage:  passworld <encrypt> [OPTIONS] PATH\n',
         'Options:',
-        '  -g    compress before encryption'
+        '  -z    compress before encryption'
       ].join('\n'))
     })
   })
@@ -142,7 +138,7 @@ describe('bin', function () {
 
     it('compresses and encrypts and then decrypts and decompresses file', async () => {
       {
-        const subprocess = cp.spawn('node', [ 'bin', 'encrypt', '-g', filename1 ])
+        const subprocess = cp.spawn('node', [ 'bin', 'encrypt', '-z', filename1 ])
         assert.strictEqual(await read(subprocess), 'Enter password:')
         await write(subprocess, password)
         assert.strictEqual(await read(subprocess), 'Encryption successful!')
@@ -182,7 +178,7 @@ describe('bin', function () {
 
     it('compresses and encrypts and then decrypts and decompresses directory', async () => {
       {
-        const subprocess = cp.spawn('node', [ 'bin', 'encrypt', '-g', dirname1 ])
+        const subprocess = cp.spawn('node', [ 'bin', 'encrypt', '-z', dirname1 ])
         assert.strictEqual(await read(subprocess), 'Enter password:')
         await write(subprocess, password)
         assert.strictEqual(await read(subprocess), 'Encryption successful!')

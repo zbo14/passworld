@@ -39,12 +39,12 @@ await passworld.encrypt('/path/to/file', 'password', { gzip })
 ### CLI
 
 ```
-$ passworld encrypt [-g] path/to/file
+$ passworld encrypt [-z] path/to/file
 ```
 
 #### Options
 
-##### gzip `[-g]`
+##### gzip `[-z]`
 Compress before encryption.
 
 ## Encrypt a directory
@@ -60,12 +60,12 @@ await passworld.encrypt('/path/to/dir', 'password', { gzip })
 ### CLI
 
 ```
-$ passworld encrypt [-g] path/to/dir
+$ passworld encrypt [-z] path/to/dir
 ```
 
 #### Options
 
-##### gzip `[-g]`
+##### gzip `[-z]`
 Compress before encryption.
 
 **Note:** the encrypted tar archive will have extension `.tgz` instead of `.tar`.
@@ -104,7 +104,7 @@ $ passworld decrypt /path/to/dir.{tar|tgz}
 
 ## "Recrypt" a file or directory
 
-Decrypt a file or directory and encrypt it again. 
+Decrypt a file or directory and encrypt it again.
 
 This command prompts you for two passwords: the first for decryption and the second for encryption.
 
@@ -113,12 +113,12 @@ If you enter an empty password the second time, `passworld` will use the same pa
 ### CLI
 
 ```
-$ passworld recrypt [-g] /path/to/*
+$ passworld recrypt [-z] /path/to/*
 ```
 
 #### Options
 
-##### gzip `[-g]`
+##### gzip `[-z]`
 Compress before encryption.
 
 ## Documentation

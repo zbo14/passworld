@@ -18,7 +18,11 @@ I'll try to keep Node and dependency versions up to date/bump them when security
 
 ## Install
 
-Make sure you have [Node](https://nodejs.org/en/download/) and [nvm](https://github.com/nvm-sh/nvm) installed.
+`npm i [-g] passworld`
+
+### For development
+
+Make sure you have [nvm](https://github.com/nvm-sh/nvm) installed.
 
 Then `git clone` the repo, `cd` into it, `nvm i`, and `npm i [-g]`.
 
